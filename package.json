@@ -1,6 +1,6 @@
 {
-  "name": "@ngx-translate/prolyfill",
-  "description": "A prolyfill to support code translations in Angular",
+  "name": "@ngx-translate/i18n-polyfill",
+  "description": "A speculative polyfill to support i18n code translations in Angular",
   "version": "0.1.0",
   "scripts": {
     "build": "gulp build",
@@ -19,7 +19,13 @@
   },
   "jest": {
     "preset": "jest-preset-angular",
-    "setupTestFrameworkScriptFile": "<rootDir>/src/jest.ts"
+    "setupTestFrameworkScriptFile": "<rootDir>/test/jest.ts",
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "test/tsconfig.spec.json"
+      }
+    },
+    "testRegex": "test/.*\\.(test|spec)\\.(ts|js)$"
   },
   "repository": {
     "type": "git",
@@ -48,6 +54,7 @@
     "@compodoc/compodoc": "1.0.4",
     "@types/core-js": "0.9.43",
     "@types/del": "3.0.0",
+    "@types/glob": "^5.0.33",
     "@types/gulp": "4.0.5",
     "@types/gulp-rename": "0.0.33",
     "@types/jest": "21.1.6",
@@ -88,5 +95,8 @@
   },
   "engines": {
     "node": ">=6.0.0"
+  },
+  "dependencies": {
+    "glob": "^7.1.2"
   }
 }

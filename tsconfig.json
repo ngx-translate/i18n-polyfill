@@ -4,10 +4,12 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "rootDir": "./src",
+    "target": "es2015",
     "lib": [
       "es2015",
       "dom"
     ],
     "skipLibCheck": true
-  }
+  },
+  "files": []
 }

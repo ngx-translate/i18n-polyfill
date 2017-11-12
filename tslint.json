@@ -62,7 +62,7 @@
     "component-class-suffix": true,
     "directive-class-suffix": true,
     "no-implicit-dependencies": false,
-    "no-submodule-imports": [true, "rxjs", "@angular/platform-browser", "@angular/core/testing"]
+    "no-submodule-imports": false
   },
   "extends": [
     "tslint:latest",

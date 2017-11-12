@@ -1,9 +1,9 @@
 {
-  "name": "ngx-translate-prolyfill",
+  "name": "@ngx-translate/i18n-polyfill",
   "version": "0.1.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ngx-translate/prolyfill"
+    "url": "https://github.com/ngx-translate/i18n-polyfill"
   },
   "author": {
     "name": "Olivier Combe",
@@ -14,15 +14,14 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ngx-translate/prolyfill/issues"
+    "url": "https://github.com/ngx-translate/i18n-polyfill/issues"
   },
-  "main": "ngx-translate-prolyfill.umd.js",
-  "module": "ngx-translate-prolyfill.js",
-  "jsnext:main": "ngx-translate-prolyfill.js",
-  "typings": "ngx-translate-prolyfill.d.ts",
+  "main": "i18n-polyfill.umd.js",
+  "module": "i18n-polyfill.js",
+  "jsnext:main": "i18n-polyfill.js",
+  "typings": "i18n-polyfill.d.ts",
   "peerDependencies": {
-    "@angular/core": "^4.0.0",
-    "rxjs": "^5.1.0",
-    "zone.js": "^0.8.4"
+    "@angular/core": "^5.0.0",
+    "rxjs": "^5.5.0"
   }
 }
