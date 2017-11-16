@@ -10,10 +10,7 @@ import * as i18n from "../ast/i18n_ast";
 import * as ml from "../ast/ast";
 import * as xml from "./xml_helper";
 import {decimalDigest} from "./digest";
-import {PlaceholderMapper, SimplePlaceholderMapper} from "./serializer";
-import {I18nError} from "../ast/parse_util";
-import {Parser} from "../ast/parser";
-import {getXmlTagDefinition} from "../ast/xml_tags";
+import {HtmlToXmlParser, PlaceholderMapper, SimplePlaceholderMapper} from "./serializer";
 
 const _MESSAGES_TAG = "messagebundle";
 const _MESSAGE_TAG = "msg";
@@ -41,22 +38,22 @@ const _DOCTYPE = `<!ELEMENT messagebundle (msg)*>
 
 <!ELEMENT ex (#PCDATA)>`;
 
-// used to merge translations
+// used to merge translations when extracting
 export function xmbLoadToXml(content: string): xml.Node[] {
-  const xliff2Parser = new XmbXmlParser();
-  const {nodes, errors} = xliff2Parser.parse(content);
+  const parser = new HtmlToXmlParser(_MESSAGE_TAG);
+  const {nodes, errors} = parser.parse(content);
 
   if (errors.length) {
-    throw new Error(`xliff2 parse errors:\n${errors.join("\n")}`);
+    throw new Error(`xmb parse errors:\n${errors.join("\n")}`);
   }
 
-  return <any>nodes;
+  return nodes;
 }
 
 export function xmbWrite(messages: i18n.Message[], locale: string | null, existingNodes: xml.Node[] = []): string {
   const exampleVisitor = new ExampleVisitor();
   const visitor = new Visitor();
-  let rootNode = new xml.Tag(_MESSAGES_TAG);
+  const rootNode = new xml.Tag(_MESSAGES_TAG);
 
   existingNodes.forEach(node => {
     rootNode.children.push(new xml.CR(2), node);
@@ -74,7 +71,7 @@ export function xmbWrite(messages: i18n.Message[], locale: string | null, existi
       attrs["meaning"] = message.meaning;
     }
 
-    let sourceTags: xml.Tag[] = [];
+    const sourceTags: xml.Tag[] = [];
     message.sources.forEach((source: i18n.MessageSpan) => {
       sourceTags.push(
         new xml.Tag(_SOURCE_TAG, {}, [
@@ -109,45 +106,6 @@ export function xmbDigest(message: i18n.Message): string {
 
 export function xmbMapper(message: i18n.Message): PlaceholderMapper {
   return new SimplePlaceholderMapper(message, toPublicName);
-}
-
-class XmbXmlParser implements ml.Visitor {
-  private errors: I18nError[];
-  private nodes: ml.Node[];
-
-  parse(xliff: string) {
-    this.nodes = [];
-
-    const xml = new Parser(getXmlTagDefinition).parse(xliff, "", false);
-
-    this.errors = xml.errors;
-    ml.visitAll(this, xml.rootNodes, null);
-
-    return {
-      nodes: this.nodes,
-      errors: this.errors
-    };
-  }
-
-  visitElement(element: ml.Element, context: any): any {
-    switch (element.name) {
-      case _MESSAGE_TAG:
-        this.nodes.push(element);
-        break;
-      default:
-        ml.visitAll(this, element.children, null);
-    }
-  }
-
-  visitAttribute(attribute: ml.Attribute, context: any): any {}
-
-  visitText(text: ml.Text, context: any): any {}
-
-  visitComment(comment: ml.Comment, context: any): any {}
-
-  visitExpansion(expansion: ml.Expansion, context: any): any {}
-
-  visitExpansionCase(expansionCase: ml.ExpansionCase, context: any): any {}
 }
 
 class Visitor implements i18n.Visitor {
@@ -221,7 +179,7 @@ class ExampleVisitor implements xml.IVisitor {
 
   visitTag(tag: xml.Tag): void {
     if (tag.name === _PLACEHOLDER_TAG) {
-      if (!tag.children || tag.children.length == 0) {
+      if (!tag.children || tag.children.length === 0) {
         const exText = new xml.Text(tag.attrs["name"] || "...");
         tag.children = [new xml.Tag(_EXEMPLE_TAG, {}, [exText])];
       }
@@ -235,7 +193,7 @@ class ExampleVisitor implements xml.IVisitor {
     element.attrs.forEach((attr: ml.Attribute) => {
       attrs[attr.name] = attr.value;
     });
-    const tag = new xml.Tag(element.name, attrs, <any>element.children);
+    const tag = new xml.Tag(element.name, attrs, element.children as any);
     return this.visitTag(tag);
   }
 

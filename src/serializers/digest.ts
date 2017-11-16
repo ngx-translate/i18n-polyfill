@@ -17,19 +17,19 @@ export function decimalDigest(message: i18n.Message): string {
     return message.id;
   }
 
-  const visitor = new _SerializerIgnoreIcuExpVisitor();
+  const visitor = new SerializerIgnoreIcuExpVisitor();
   const parts = message.nodes.map(a => a.visit(visitor, null));
   return computeMsgId(parts.join(""), message.meaning);
 }
 
 /**
- * Serialize the i18n ast to something xml-like in order to generate an UID.
+ * Serialize the i18n html to something xml-like in order to generate an UID.
  *
  * The visitor is also used in the i18n parser tests
  *
  * @internal
  */
-class _SerializerVisitor implements i18n.Visitor {
+class SerializerVisitor implements i18n.Visitor {
   visitText(text: i18n.Text, context: any): any {
     return text.value;
   }
@@ -60,22 +60,22 @@ class _SerializerVisitor implements i18n.Visitor {
   }
 }
 
-const serializerVisitor = new _SerializerVisitor();
+const serializerVisitor = new SerializerVisitor();
 
 export function serializeNodes(nodes: i18n.Node[]): string[] {
   return nodes.map(a => a.visit(serializerVisitor, null));
 }
 
 /**
- * Serialize the i18n ast to something xml-like in order to generate an UID.
+ * Serialize the i18n html to something xml-like in order to generate an UID.
  *
  * Ignore the ICU expressions so that message IDs stays identical if only the expression changes.
  *
  * @internal
  */
-class _SerializerIgnoreIcuExpVisitor extends _SerializerVisitor {
+class SerializerIgnoreIcuExpVisitor extends SerializerVisitor {
   visitIcu(icu: i18n.Icu, context: any): any {
-    let strCases = Object.keys(icu.cases).map((k: string) => `${k} {${icu.cases[k].visit(this)}}`);
+    const strCases = Object.keys(icu.cases).map((k: string) => `${k} {${icu.cases[k].visit(this)}}`);
     // Do not take the expression into account
     return `{${icu.type}, ${strCases.join(", ")}}`;
   }
@@ -104,6 +104,7 @@ export function sha1(str: string): string {
     const [h0, h1, h2, h3, h4]: number[] = [a, b, c, d, e];
 
     for (let j = 0; j < 80; j++) {
+      /* tslint:disable-next-line */
       if (j < 16) {
         w[j] = words32[i + j];
       } else {
@@ -150,7 +151,7 @@ export function fingerprint(str: string): [number, number] {
 
   let [hi, lo] = [hash32(utf8, 0), hash32(utf8, 102072)];
 
-  if (hi == 0 && (lo == 0 || lo == 1)) {
+  if (hi === 0 && (lo === 0 || lo === 1)) {
     hi = hi ^ 0x130f9bef;
     lo = lo ^ -0x6b5f56d8;
   }
@@ -306,7 +307,7 @@ function word32ToByteString(word: number): string {
 }
 
 function byteStringToHexString(str: string): string {
-  let hex: string = "";
+  let hex = "";
   for (let i = 0; i < str.length; i++) {
     const b = byteAt(str, i);
     hex += (b >>> 4).toString(16) + (b & 0x0f).toString(16);
@@ -352,7 +353,9 @@ function numberTimesBigInt(num: number, b: string): string {
   let product = "";
   let bToThePower = b;
   for (; num !== 0; num = num >>> 1) {
-    if (num & 1) product = addBigInt(product, bToThePower);
+    if (num & 1) {
+      product = addBigInt(product, bToThePower);
+    }
     bToThePower = addBigInt(bToThePower, bToThePower);
   }
   return product;

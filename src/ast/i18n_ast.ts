@@ -6,6 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
+/* tslint:disable */
+
 import {ParseSourceSpan} from "./parse_util";
 
 export class Message {

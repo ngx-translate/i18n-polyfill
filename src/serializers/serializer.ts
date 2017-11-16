@@ -6,34 +6,30 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Node} from "../ast/ast";
+import * as html from "../ast/ast";
 import * as i18n from "../ast/i18n_ast";
-import {PlaceholderMapper} from "@angular/compiler/src/i18n/serializers/serializer";
+import {getHtmlTagDefinition} from "../ast/html_tags";
+import {I18nPluralPipe, I18nSelectPipe, NgLocaleLocalization} from "@angular/common";
+import {Parser} from "../ast/parser";
+import {getXmlTagDefinition} from "../ast/xml_tags";
+import {I18nError} from "../ast/parse_util";
+import * as xml from "./xml_helper";
 
-export abstract class Serializer {
-  // - The `placeholders` and `placeholderToMessage` properties are irrelevant in the input messages
-  // - The `id` contains the message id that the serializer is expected to use
-  // - Placeholder names are already map to public names using the provided mapper
-  abstract write(messages: i18n.Message[], locale: string | null): string;
-  abstract digest(message: i18n.Message): string;
-  // Creates a name mapper, see `PlaceholderMapper`
-  // Returning `null` means that no name mapping is used.
-  createNameMapper(message: i18n.Message): PlaceholderMapper|null { return null; }
+export interface I18nMessagesById {
+  [msgId: string]: i18n.Node[];
 }
 
-export type I18nMessagesById = {[msgId: string]: (string | IcuContent)[]};
-
-export type IcuContent = {
-  cases: {[value: string]: Node[]};
+export interface IcuContent {
+  cases: {[value: string]: html.Node[]};
   expression: string;
   type: string;
-};
+}
 
-export type IcuContentStr = {
+export interface IcuContentStr {
   cases: {[value: string]: string};
   expression: string;
   type: string;
-};
+}
 
 /**
  * A `PlaceholderMapper` converts placeholder names from internal to serialized representation and
@@ -42,9 +38,9 @@ export type IcuContentStr = {
  * It should be used for serialization format that put constraints on the placeholder names.
  */
 export interface PlaceholderMapper {
-  toPublicName(internalName: string): string|null;
+  toPublicName(internalName: string): string | null;
 
-  toInternalName(publicName: string): string|null;
+  toInternalName(publicName: string): string | null;
 }
 
 /**
@@ -61,18 +57,17 @@ export class SimplePlaceholderMapper extends i18n.RecurseVisitor implements Plac
     message.nodes.forEach(node => node.visit(this));
   }
 
-  toPublicName(internalName: string): string|null {
-    return this.internalToPublic.hasOwnProperty(internalName) ?
-      this.internalToPublic[internalName] :
-      null;
+  toPublicName(internalName: string): string | null {
+    return this.internalToPublic.hasOwnProperty(internalName) ? this.internalToPublic[internalName] : null;
   }
 
-  toInternalName(publicName: string): string|null {
-    return this.publicToInternal.hasOwnProperty(publicName) ? this.publicToInternal[publicName] :
-      null;
+  toInternalName(publicName: string): string | null {
+    return this.publicToInternal.hasOwnProperty(publicName) ? this.publicToInternal[publicName] : null;
   }
 
-  visitText(text: i18n.Text, context?: any): any { return null; }
+  visitText(text: i18n.Text, context?: any): any {
+    return null;
+  }
 
   visitTagPlaceholder(ph: i18n.TagPlaceholder, context?: any): any {
     this.visitPlaceholderName(ph.startName);
@@ -80,7 +75,9 @@ export class SimplePlaceholderMapper extends i18n.RecurseVisitor implements Plac
     this.visitPlaceholderName(ph.closeName);
   }
 
-  visitPlaceholder(ph: i18n.Placeholder, context?: any): any { this.visitPlaceholderName(ph.name); }
+  visitPlaceholder(ph: i18n.Placeholder, context?: any): any {
+    this.visitPlaceholderName(ph.name);
+  }
 
   visitIcuPlaceholder(ph: i18n.IcuPlaceholder, context?: any): any {
     this.visitPlaceholderName(ph.name);
@@ -106,4 +103,102 @@ export class SimplePlaceholderMapper extends i18n.RecurseVisitor implements Plac
     this.internalToPublic[internalName] = publicName;
     this.publicToInternal[publicName] = internalName;
   }
+}
+
+const i18nSelectPipe = new I18nSelectPipe();
+class SerializerVisitor implements html.Visitor {
+  private i18nPluralPipe: I18nPluralPipe;
+  constructor(locale: string, private params) {
+    this.i18nPluralPipe = new I18nPluralPipe(new NgLocaleLocalization(locale));
+  }
+  visitElement(element: html.Element, context: any): any {
+    if (getHtmlTagDefinition(element.name).isVoid) {
+      return `<${element.name}${this._visitAll(element.attrs, " ")}/>`;
+    }
+
+    return `<${element.name}${this._visitAll(element.attrs, " ")}>${this._visitAll(element.children)}</${
+      element.name
+    }>`;
+  }
+
+  visitAttribute(attribute: html.Attribute, context: any): any {
+    return `${attribute.name}="${attribute.value}"`;
+  }
+
+  visitText(text: html.Text, context: any): any {
+    return text.value;
+  }
+
+  visitComment(comment: html.Comment, context: any): any {
+    return `<!--${comment.value}-->`;
+  }
+
+  visitExpansion(expansion: html.Expansion, context: any): any {
+    const cases = {};
+    expansion.cases.forEach(c => (cases[c.value] = this._visitAll(c.expression)));
+
+    switch (expansion.type) {
+      case "select":
+        return i18nSelectPipe.transform(this.params[expansion.switchValue] || "", cases);
+      case "plural":
+        return this.i18nPluralPipe.transform(this.params[expansion.switchValue], cases);
+    }
+    throw new Error(`Unknown expansion type "${expansion.type}"`);
+  }
+
+  visitExpansionCase(expansionCase: html.ExpansionCase, context: any): any {
+    return ` ${expansionCase.value} {${this._visitAll(expansionCase.expression)}}`;
+  }
+
+  private _visitAll(nodes: html.Node[], join = ""): string {
+    if (nodes.length === 0) {
+      return "";
+    }
+    return join + nodes.map(a => a.visit(this, null)).join(join);
+  }
+}
+
+export function serializeNodes(nodes: html.Node[], locale: string, params: {[key: string]: any}): string[] {
+  return nodes.map(node => node.visit(new SerializerVisitor(locale, params), null));
+}
+
+export class HtmlToXmlParser implements html.Visitor {
+  private errors: I18nError[];
+  private nodes: html.Node[];
+
+  constructor(private MESSAGE_TAG: string) {}
+
+  parse(content: string) {
+    this.nodes = [];
+
+    const parser = new Parser(getXmlTagDefinition).parse(content, "", false);
+
+    this.errors = parser.errors;
+    html.visitAll(this, parser.rootNodes, null);
+
+    return {
+      nodes: (this.nodes as any) as xml.Node[],
+      errors: this.errors
+    };
+  }
+
+  visitElement(element: html.Element, context: any): any {
+    switch (element.name) {
+      case this.MESSAGE_TAG:
+        this.nodes.push(element);
+        break;
+      default:
+        html.visitAll(this, element.children, null);
+    }
+  }
+
+  visitAttribute(attribute: html.Attribute, context: any): any {}
+
+  visitText(text: html.Text, context: any): any {}
+
+  visitComment(comment: html.Comment, context: any): any {}
+
+  visitExpansion(expansion: html.Expansion, context: any): any {}
+
+  visitExpansionCase(expansionCase: html.ExpansionCase, context: any): any {}
 }

@@ -1,18 +1,22 @@
 import * as ts from "typescript";
-import {readdirSync, readFileSync} from "fs";
+import {readFileSync} from "fs";
 import * as glob from "glob";
 import {AbstractAstParser} from "./abstract-ast-parser";
 import {TranslationCollection} from "./translation-collection";
 
-export function getAst(path: string) {
-  const files = glob.sync(path);
+export function getAst(paths: string[]) {
+  const files = [];
+  paths.forEach(path => {
+    files.push(...glob.sync(path));
+  });
   const parser = new ServiceParser();
   let collection: TranslationCollection = new TranslationCollection();
-  files.forEach(path => {
+  files.forEach(p => {
     // this._options.verbose && this._out(chalk.gray('- %s'), path);
-    const contents: string = readFileSync(path, "utf-8");
-    collection = collection.union(parser.extract(contents, path));
+    const contents: string = readFileSync(p, "utf-8");
+    collection = collection.union(parser.extract(contents, p));
   });
+  // save file
   return collection.keys();
 }
 

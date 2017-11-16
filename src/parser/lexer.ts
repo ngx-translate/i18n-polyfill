@@ -6,7 +6,9 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import * as chars from '../ast/chars';
+/* tslint:disable */
+
+import * as chars from "../ast/chars";
 
 export enum TokenType {
   Character,
@@ -18,11 +20,11 @@ export enum TokenType {
   Error
 }
 
-const KEYWORDS = ['var', 'let', 'as', 'null', 'undefined', 'true', 'false', 'if', 'else', 'this'];
+const KEYWORDS = ["var", "let", "as", "null", "undefined", "true", "false", "if", "else", "this"];
 
 export class Lexer {
   tokenize(text: string): Token[] {
-    const scanner = new _Scanner(text);
+    const scanner = new Scanner(text);
     const tokens: Token[] = [];
     let token = scanner.scanToken();
     while (token != null) {
@@ -34,47 +36,69 @@ export class Lexer {
 }
 
 export class Token {
-  constructor(
-      public index: number, public type: TokenType, public numValue: number,
-      public strValue: string) {}
+  constructor(public index: number, public type: TokenType, public numValue: number, public strValue: string) {}
 
   isCharacter(code: number): boolean {
-    return this.type == TokenType.Character && this.numValue == code;
+    return this.type === TokenType.Character && this.numValue === code;
   }
 
-  isNumber(): boolean { return this.type == TokenType.Number; }
+  isNumber(): boolean {
+    return this.type === TokenType.Number;
+  }
 
-  isString(): boolean { return this.type == TokenType.String; }
+  isString(): boolean {
+    return this.type === TokenType.String;
+  }
 
   isOperator(operater: string): boolean {
-    return this.type == TokenType.Operator && this.strValue == operater;
+    return this.type === TokenType.Operator && this.strValue === operater;
   }
 
-  isIdentifier(): boolean { return this.type == TokenType.Identifier; }
+  isIdentifier(): boolean {
+    return this.type === TokenType.Identifier;
+  }
 
-  isKeyword(): boolean { return this.type == TokenType.Keyword; }
+  isKeyword(): boolean {
+    return this.type === TokenType.Keyword;
+  }
 
-  isKeywordLet(): boolean { return this.type == TokenType.Keyword && this.strValue == 'let'; }
+  isKeywordLet(): boolean {
+    return this.type === TokenType.Keyword && this.strValue === "let";
+  }
 
-  isKeywordAs(): boolean { return this.type == TokenType.Keyword && this.strValue == 'as'; }
+  isKeywordAs(): boolean {
+    return this.type === TokenType.Keyword && this.strValue === "as";
+  }
 
-  isKeywordNull(): boolean { return this.type == TokenType.Keyword && this.strValue == 'null'; }
+  isKeywordNull(): boolean {
+    return this.type === TokenType.Keyword && this.strValue === "null";
+  }
 
   isKeywordUndefined(): boolean {
-    return this.type == TokenType.Keyword && this.strValue == 'undefined';
+    return this.type === TokenType.Keyword && this.strValue === "undefined";
   }
 
-  isKeywordTrue(): boolean { return this.type == TokenType.Keyword && this.strValue == 'true'; }
+  isKeywordTrue(): boolean {
+    return this.type === TokenType.Keyword && this.strValue === "true";
+  }
 
-  isKeywordFalse(): boolean { return this.type == TokenType.Keyword && this.strValue == 'false'; }
+  isKeywordFalse(): boolean {
+    return this.type === TokenType.Keyword && this.strValue === "false";
+  }
 
-  isKeywordThis(): boolean { return this.type == TokenType.Keyword && this.strValue == 'this'; }
+  isKeywordThis(): boolean {
+    return this.type === TokenType.Keyword && this.strValue === "this";
+  }
 
-  isError(): boolean { return this.type == TokenType.Error; }
+  isError(): boolean {
+    return this.type === TokenType.Error;
+  }
 
-  toNumber(): number { return this.type == TokenType.Number ? this.numValue : -1; }
+  toNumber(): number {
+    return this.type === TokenType.Number ? this.numValue : -1;
+  }
 
-  toString(): string|null {
+  toString(): string | null {
     switch (this.type) {
       case TokenType.Character:
       case TokenType.Identifier:
@@ -112,19 +136,19 @@ function newStringToken(index: number, text: string): Token {
 }
 
 function newNumberToken(index: number, n: number): Token {
-  return new Token(index, TokenType.Number, n, '');
+  return new Token(index, TokenType.Number, n, "");
 }
 
 function newErrorToken(index: number, message: string): Token {
   return new Token(index, TokenType.Error, 0, message);
 }
 
-export const EOF: Token = new Token(-1, TokenType.Character, 0, '');
+export const EOF: Token = new Token(-1, TokenType.Character, 0, "");
 
-class _Scanner {
+class Scanner {
   length: number;
-  peek: number = 0;
-  index: number = -1;
+  peek = 0;
+  index = -1;
 
   constructor(public input: string) {
     this.length = input.length;
@@ -135,9 +159,11 @@ class _Scanner {
     this.peek = ++this.index >= this.length ? chars.$EOF : this.input.charCodeAt(this.index);
   }
 
-  scanToken(): Token|null {
-    const input = this.input, length = this.length;
-    let peek = this.peek, index = this.index;
+  scanToken(): Token | null {
+    const input = this.input;
+    const length = this.length;
+    let peek = this.peek;
+    let index = this.index;
 
     // Skip whitespace.
     while (peek <= chars.$SPACE) {
@@ -157,15 +183,18 @@ class _Scanner {
     }
 
     // Handle identifiers and numbers.
-    if (isIdentifierStart(peek)) return this.scanIdentifier();
-    if (chars.isDigit(peek)) return this.scanNumber(index);
+    if (isIdentifierStart(peek)) {
+      return this.scanIdentifier();
+    }
+    if (chars.isDigit(peek)) {
+      return this.scanNumber(index);
+    }
 
     const start: number = index;
     switch (peek) {
       case chars.$PERIOD:
         this.advance();
-        return chars.isDigit(this.peek) ? this.scanNumber(start) :
-                                          newCharacterToken(start, chars.$PERIOD);
+        return chars.isDigit(this.peek) ? this.scanNumber(start) : newCharacterToken(start, chars.$PERIOD);
       case chars.$LPAREN:
       case chars.$RPAREN:
       case chars.$LBRACE:
@@ -188,20 +217,21 @@ class _Scanner {
       case chars.$CARET:
         return this.scanOperator(start, String.fromCharCode(peek));
       case chars.$QUESTION:
-        return this.scanComplexOperator(start, '?', chars.$PERIOD, '.');
+        return this.scanComplexOperator(start, "?", chars.$PERIOD, ".");
       case chars.$LT:
       case chars.$GT:
-        return this.scanComplexOperator(start, String.fromCharCode(peek), chars.$EQ, '=');
+        return this.scanComplexOperator(start, String.fromCharCode(peek), chars.$EQ, "=");
       case chars.$BANG:
       case chars.$EQ:
-        return this.scanComplexOperator(
-            start, String.fromCharCode(peek), chars.$EQ, '=', chars.$EQ, '=');
+        return this.scanComplexOperator(start, String.fromCharCode(peek), chars.$EQ, "=", chars.$EQ, "=");
       case chars.$AMPERSAND:
-        return this.scanComplexOperator(start, '&', chars.$AMPERSAND, '&');
+        return this.scanComplexOperator(start, "&", chars.$AMPERSAND, "&");
       case chars.$BAR:
-        return this.scanComplexOperator(start, '|', chars.$BAR, '|');
+        return this.scanComplexOperator(start, "|", chars.$BAR, "|");
       case chars.$NBSP:
-        while (chars.isWhitespace(this.peek)) this.advance();
+        while (chars.isWhitespace(this.peek)) {
+          this.advance();
+        }
         return this.scanToken();
     }
 
@@ -213,7 +243,6 @@ class _Scanner {
     this.advance();
     return newCharacterToken(start, code);
   }
-
 
   scanOperator(start: number, str: string): Token {
     this.advance();
@@ -231,15 +260,20 @@ class _Scanner {
    * @param three third symbol (part of the operator when provided and matches source expression)
    */
   scanComplexOperator(
-      start: number, one: string, twoCode: number, two: string, threeCode?: number,
-      three?: string): Token {
+    start: number,
+    one: string,
+    twoCode: number,
+    two: string,
+    threeCode?: number,
+    three?: string
+  ): Token {
     this.advance();
     let str: string = one;
-    if (this.peek == twoCode) {
+    if (this.peek === twoCode) {
       this.advance();
       str += two;
     }
-    if (threeCode != null && this.peek == threeCode) {
+    if (threeCode != null && this.peek === threeCode) {
       this.advance();
       str += three;
     }
@@ -249,24 +283,29 @@ class _Scanner {
   scanIdentifier(): Token {
     const start: number = this.index;
     this.advance();
-    while (isIdentifierPart(this.peek)) this.advance();
+    while (isIdentifierPart(this.peek)) {
+      this.advance();
+    }
     const str: string = this.input.substring(start, this.index);
-    return KEYWORDS.indexOf(str) > -1 ? newKeywordToken(start, str) :
-                                        newIdentifierToken(start, str);
+    return KEYWORDS.indexOf(str) > -1 ? newKeywordToken(start, str) : newIdentifierToken(start, str);
   }
 
   scanNumber(start: number): Token {
-    let simple: boolean = (this.index === start);
-    this.advance();  // Skip initial digit.
+    let simple: boolean = this.index === start;
+    this.advance(); // Skip initial digit.
     while (true) {
       if (chars.isDigit(this.peek)) {
         // Do nothing.
-      } else if (this.peek == chars.$PERIOD) {
+      } else if (this.peek === chars.$PERIOD) {
         simple = false;
       } else if (isExponentStart(this.peek)) {
         this.advance();
-        if (isExponentSign(this.peek)) this.advance();
-        if (!chars.isDigit(this.peek)) return this.error('Invalid exponent', -1);
+        if (isExponentSign(this.peek)) {
+          this.advance();
+        }
+        if (!chars.isDigit(this.peek)) {
+          return this.error("Invalid exponent", -1);
+        }
         simple = false;
       } else {
         break;
@@ -281,20 +320,20 @@ class _Scanner {
   scanString(): Token {
     const start: number = this.index;
     const quote: number = this.peek;
-    this.advance();  // Skip initial quote.
+    this.advance(); // Skip initial quote.
 
-    let buffer: string = '';
+    let buffer = "";
     let marker: number = this.index;
     const input: string = this.input;
 
-    while (this.peek != quote) {
-      if (this.peek == chars.$BACKSLASH) {
+    while (this.peek !== quote) {
+      if (this.peek === chars.$BACKSLASH) {
         buffer += input.substring(marker, this.index);
         this.advance();
         let unescapedCode: number;
         // Workaround for TS2.1-introduced type strictness
         this.peek = this.peek;
-        if (this.peek == chars.$u) {
+        if (this.peek === chars.$u) {
           // 4 character hex code for unicode character.
           const hex: string = input.substring(this.index + 1, this.index + 5);
           if (/^[0-9a-f]+$/i.test(hex)) {
@@ -302,7 +341,7 @@ class _Scanner {
           } else {
             return this.error(`Invalid unicode escape [\\u${hex}]`, 0);
           }
-          for (let i: number = 0; i < 5; i++) {
+          for (let i = 0; i < 5; i++) {
             this.advance();
           }
         } else {
@@ -311,54 +350,62 @@ class _Scanner {
         }
         buffer += String.fromCharCode(unescapedCode);
         marker = this.index;
-      } else if (this.peek == chars.$EOF) {
-        return this.error('Unterminated quote', 0);
+      } else if (this.peek === chars.$EOF) {
+        return this.error("Unterminated quote", 0);
       } else {
         this.advance();
       }
     }
 
     const last: string = input.substring(marker, this.index);
-    this.advance();  // Skip terminating quote.
+    this.advance(); // Skip terminating quote.
 
     return newStringToken(start, buffer + last);
   }
 
   error(message: string, offset: number): Token {
     const position: number = this.index + offset;
-    return newErrorToken(
-        position, `Lexer Error: ${message} at column ${position} in expression [${this.input}]`);
+    return newErrorToken(position, `Lexer Error: ${message} at column ${position} in expression [${this.input}]`);
   }
 }
 
 function isIdentifierStart(code: number): boolean {
-  return (chars.$a <= code && code <= chars.$z) || (chars.$A <= code && code <= chars.$Z) ||
-      (code == chars.$_) || (code == chars.$$);
+  return (
+    (chars.$a <= code && code <= chars.$z) ||
+    (chars.$A <= code && code <= chars.$Z) ||
+    code === chars.$_ ||
+    code === chars.$$
+  );
 }
 
 export function isIdentifier(input: string): boolean {
-  if (input.length == 0) return false;
-  const scanner = new _Scanner(input);
-  if (!isIdentifierStart(scanner.peek)) return false;
+  if (input.length === 0) {
+    return false;
+  }
+  const scanner = new Scanner(input);
+  if (!isIdentifierStart(scanner.peek)) {
+    return false;
+  }
   scanner.advance();
   while (scanner.peek !== chars.$EOF) {
-    if (!isIdentifierPart(scanner.peek)) return false;
+    if (!isIdentifierPart(scanner.peek)) {
+      return false;
+    }
     scanner.advance();
   }
   return true;
 }
 
 function isIdentifierPart(code: number): boolean {
-  return chars.isAsciiLetter(code) || chars.isDigit(code) || (code == chars.$_) ||
-      (code == chars.$$);
+  return chars.isAsciiLetter(code) || chars.isDigit(code) || code === chars.$_ || code === chars.$$;
 }
 
 function isExponentStart(code: number): boolean {
-  return code == chars.$e || code == chars.$E;
+  return code === chars.$e || code === chars.$E;
 }
 
 function isExponentSign(code: number): boolean {
-  return code == chars.$MINUS || code == chars.$PLUS;
+  return code === chars.$MINUS || code === chars.$PLUS;
 }
 
 export function isQuote(code: number): boolean {
@@ -383,9 +430,9 @@ function unescape(code: number): number {
 }
 
 function parseIntAutoRadix(text: string): number {
-  const result: number = parseInt(text);
+  const result: number = parseInt(text, 10);
   if (isNaN(result)) {
-    throw new Error('Invalid integer literal when parsing ' + text);
+    throw new Error("Invalid integer literal when parsing " + text);
   }
   return result;
 }

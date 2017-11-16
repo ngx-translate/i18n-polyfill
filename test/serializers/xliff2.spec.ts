@@ -6,8 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import {xliff2Digest, xliff2LoadToI18n, xliff2LoadToXml, xliff2Write} from "../../src/serializers/xliff2";
-import {DEFAULT_INTERPOLATION_CONFIG} from "../../src/ast/interpolation_config";
-import {MessageBundle} from "../../src/parser/message-bundle";
+import {MessageBundle} from "../../src/extractor/message-bundle";
 
 const XLIFF2 = `<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="fr">
@@ -124,103 +123,42 @@ lignes</target>
 
 describe("Xliff2 serializer", () => {
   it("should decode xliff2", () => {
-    expect(xliff2LoadToI18n(XLIFF2)).toEqual({
-      "1933478729560469763": ["etubirtta elbatalsnart"],
-      "7056919470098446707": [
-        "INTERPOLATION",
-        " ",
-        "START_BOLD_TEXT",
-        "sredlohecalp htiw",
-        "CLOSE_BOLD_TEXT",
-        " tnemele elbatalsnart"
-      ],
-      "2981514368455622387": [
-        {
-          expression: "VAR_PLURAL",
-          type: "plural",
-          cases: {"=0": ["START_PARAGRAPH", "TEST", "CLOSE_PARAGRAPH"]}
-        }
-      ],
-      i: ["oof"],
-      "6440235004920703622": [
-        "START_BOLD_TEXT",
-        "START_UNDERLINED_TEXT",
-        "txeT ",
-        "INTERPOLATION",
-        "CLOSE_UNDERLINED_TEXT",
-        "CLOSE_BOLD_TEXT"
-      ],
-      "8779402634269838862": ["TAG_IMG_1", "TAG_IMG", "LINE_BREAK"],
-      "6536355551500405293": ["START_TAG_SPAN", "CLOSE_TAG_SPAN", " olleh"],
-      baz: [
-        {
-          expression: "VAR_PLURAL",
-          type: "plural",
-          cases: {
-            "=0": [
-              {
-                expression: "VAR_SELECT",
-                type: "select",
-                cases: {
-                  other: ["START_PARAGRAPH", "profondément imbriqué", "CLOSE_PARAGRAPH"]
-                }
-              },
-              " "
-            ]
-          }
-        }
-      ],
-      "6997386649824869937": ["Test: ", "ICU"],
-      "5229984852258993423": [
-        {
-          expression: "VAR_PLURAL",
-          type: "plural",
-          cases: {
-            "=0": [
-              {
-                expression: "VAR_SELECT",
-                type: "select",
-                cases: {
-                  other: ["START_PARAGRAPH", "profondément imbriqué", "CLOSE_PARAGRAPH"]
-                }
-              },
-              " "
-            ],
-            "=other": ["beaucoup"]
-          }
-        }
-      ],
-      "2340165783990709777": [
-        `multi
-lignes`
-      ]
-    });
+    const loaded = xliff2LoadToI18n(XLIFF2);
+    expect(loaded["1933478729560469763"]).toEqual([
+      {
+        sourceSpan: {
+          details: null,
+          end: {col: 22, file: {content: "etubirtta elbatalsnart", url: ""}, line: 0, offset: 22},
+          start: {col: 0, file: {content: "etubirtta elbatalsnart", url: ""}, line: 0, offset: 0}
+        },
+        value: "etubirtta elbatalsnart"
+      }
+    ]);
   });
 
   it("should write xliff2", () => {
     const messageBundle = new MessageBundle("en");
     messageBundle.updateFromTemplate(
       "This is a test message {sex, select, other {deeply nested}}",
-      "file.ts",
-      DEFAULT_INTERPOLATION_CONFIG
+      "file.ts"
     );
     expect(messageBundle.write(xliff2Write, xliff2Digest)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en">
   <file original="ng.template" id="ngi18n">
-    <unit id="1201948414570017983">
-      <notes>
-        <note category="location">file.ts:1</note>
-      </notes>
-      <segment>
-        <source>{VAR_SELECT, select, other {deeply nested} }</source>
-      </segment>
-    </unit>
     <unit id="5980763297918130233">
       <notes>
         <note category="location">file.ts:1</note>
       </notes>
       <segment>
         <source>This is a test message <ph id="0" equiv="ICU" disp="{sex, select, other {...}}"/></source>
+      </segment>
+    </unit>
+    <unit id="1201948414570017983">
+      <notes>
+        <note category="location">file.ts:1</note>
+      </notes>
+      <segment>
+        <source>{VAR_SELECT, select, other {deeply nested} }</source>
       </segment>
     </unit>
   </file>
@@ -233,8 +171,7 @@ lignes`
     const messageBundle = new MessageBundle("en");
     messageBundle.updateFromTemplate(
       "This is a test message {sex, select, other {deeply nested}}",
-      "file.ts",
-      DEFAULT_INTERPOLATION_CONFIG
+      "file.ts"
     );
     expect(messageBundle.write(xliff2Write, xliff2Digest, undefined, nodes))
       .toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
@@ -335,20 +272,20 @@ lines</source>
 lignes</target>
       </segment>
     </unit>
-    <unit id="1201948414570017983">
-      <notes>
-        <note category="location">file.ts:1</note>
-      </notes>
-      <segment>
-        <source>{VAR_SELECT, select, other {deeply nested} }</source>
-      </segment>
-    </unit>
     <unit id="5980763297918130233">
       <notes>
         <note category="location">file.ts:1</note>
       </notes>
       <segment>
         <source>This is a test message <ph id="0" equiv="ICU" disp="{sex, select, other {...}}"/></source>
+      </segment>
+    </unit>
+    <unit id="1201948414570017983">
+      <notes>
+        <note category="location">file.ts:1</note>
+      </notes>
+      <segment>
+        <source>{VAR_SELECT, select, other {deeply nested} }</source>
       </segment>
     </unit>
   </file>

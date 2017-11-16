@@ -20,6 +20,9 @@
   "module": "i18n-polyfill.js",
   "jsnext:main": "i18n-polyfill.js",
   "typings": "i18n-polyfill.d.ts",
+  "bin": {
+    "ngx-extractor": "./ngx-extractor.js"
+  },
   "peerDependencies": {
     "@angular/core": "^5.0.0",
     "rxjs": "^5.5.0"

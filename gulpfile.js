@@ -1,6 +1,7 @@
 const gulp = require("gulp"),
   path = require("path"),
   ngc = require("@angular/compiler-cli/src/main").main,
+  ts = require("gulp-typescript"),
   rollup = require("gulp-rollup"),
   rename = require("gulp-rename"),
   del = require("del"),
@@ -28,9 +29,7 @@ gulp.task("clean:dist", function() {
  *    when copying to /.tmp.
  */
 gulp.task("copy:source", function() {
-  return gulp
-    .src([`${srcFolder}/**/*`, `!${srcFolder}/node_modules`])
-    .pipe(gulp.dest(tmpFolder));
+  return gulp.src([`${srcFolder}/**/*`, `!${srcFolder}/node_modules`]).pipe(gulp.dest(tmpFolder));
 });
 
 /**
@@ -51,6 +50,14 @@ gulp.task("ngc", function() {
       throw new Error("ngc compilation failed: " + error);
     }
   });
+});
+
+gulp.task("tsc:cli", function() {
+  const tsProject = ts.createProject(`${tmpFolder}/tsconfig.cli.json`);
+  return tsProject
+    .src()
+    .pipe(tsProject())
+    .js.pipe(gulp.dest(buildFolder));
 });
 
 /**
@@ -138,9 +145,12 @@ gulp.task("rollup:umd", function() {
  *    on step 5.
  */
 gulp.task("copy:build", function() {
-  return gulp
-    .src([`${buildFolder}/**/*`, `!${buildFolder}/**/*.js`])
-    .pipe(gulp.dest(distFolder));
+  return gulp.src([`${buildFolder}/**/*`, `!${buildFolder}/**/*.js`]).pipe(gulp.dest(distFolder));
+});
+
+gulp.task("copy:cli", function() {
+  gulp.src([`${buildFolder}/ngx-extractor.js`]).pipe(gulp.dest(`${distFolder}`));
+  return gulp.src([`${buildFolder}/extractor/**/*`]).pipe(gulp.dest(`${distFolder}/extractor`));
 });
 
 /**
@@ -154,9 +164,7 @@ gulp.task("copy:manifest", function() {
  * 9. Copy README.md from / to /dist
  */
 gulp.task("copy:readme", function() {
-  return gulp
-    .src([path.join(rootFolder, "README.MD")])
-    .pipe(gulp.dest(distFolder));
+  return gulp.src([path.join(rootFolder, "README.MD")]).pipe(gulp.dest(distFolder));
 });
 
 /**
@@ -179,9 +187,11 @@ gulp.task("compile", function() {
     "copy:source",
     "inline-resources",
     "ngc",
+    "tsc:cli",
     "rollup:fesm",
     "rollup:umd",
     "copy:build",
+    "copy:cli",
     "copy:manifest",
     "copy:readme",
     "clean:build",

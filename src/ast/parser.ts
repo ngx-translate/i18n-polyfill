@@ -6,6 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
+/* tslint:disable */
 import {ParseError, ParseSourceSpan} from "./parse_util";
 
 import * as html from "./ast";
@@ -33,7 +34,7 @@ export class Parser {
   parse(
     source: string,
     url: string,
-    parseExpansionForms: boolean = false,
+    parseExpansionForms = false,
     interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG
   ): ParseTreeResult {
     const tokensAndErrors = lex.tokenize(source, url, this.getTagDefinition, parseExpansionForms, interpolationConfig);
@@ -42,13 +43,13 @@ export class Parser {
 
     return new ParseTreeResult(
       treeAndErrors.rootNodes,
-      (<ParseError[]>tokensAndErrors.errors).concat(treeAndErrors.errors)
+      (tokensAndErrors.errors as ParseError[]).concat(treeAndErrors.errors)
     );
   }
 }
 
 class _TreeBuilder {
-  private _index: number = -1;
+  private _index = -1;
   private _peek: lex.Token;
 
   private _rootNodes: html.Node[] = [];
@@ -114,7 +115,7 @@ class _TreeBuilder {
   private _consumeComment(token: lex.Token) {
     const text = this._advanceIf(lex.TokenType.RAW_TEXT);
     this._advanceIf(lex.TokenType.COMMENT_END);
-    const value = text != null ? text.parts[0].trim() : null;
+    const value = text !== null ? text.parts[0].trim() : null;
     this._addToParent(new html.Comment(value, token.sourceSpan));
   }
 
@@ -127,7 +128,9 @@ class _TreeBuilder {
     // read =
     while (this._peek.type === lex.TokenType.EXPANSION_CASE_VALUE) {
       const expCase = this._parseExpansionCase();
-      if (!expCase) return; // error
+      if (!expCase) {
+        return;
+      } // error
       cases.push(expCase);
     }
 
@@ -157,7 +160,9 @@ class _TreeBuilder {
     const start = this._advance();
 
     const exp = this._collectExpansionExpTokens(start);
-    if (!exp) return null;
+    if (!exp) {
+      return null;
+    }
 
     const end = this._advance();
     exp.push(new lex.Token(lex.TokenType.EOF, [], end.sourceSpan));
@@ -165,7 +170,7 @@ class _TreeBuilder {
     // parse everything in between { and }
     const parsedExp = new _TreeBuilder(exp, this.getTagDefinition).build();
     if (parsedExp.errors.length > 0) {
-      this._errors = this._errors.concat(<TreeError[]>parsedExp.errors);
+      this._errors = this._errors.concat(parsedExp.errors as TreeError[]);
       return null;
     }
 
@@ -189,7 +194,9 @@ class _TreeBuilder {
       if (this._peek.type === lex.TokenType.EXPANSION_CASE_EXP_END) {
         if (lastOnStack(expansionFormStack, lex.TokenType.EXPANSION_CASE_EXP_START)) {
           expansionFormStack.pop();
-          if (expansionFormStack.length == 0) return exp;
+          if (expansionFormStack.length === 0) {
+            return exp;
+          }
         } else {
           this._errors.push(TreeError.create(null, start.sourceSpan, `Invalid ICU message. Missing '}'.`));
           return null;
@@ -216,9 +223,9 @@ class _TreeBuilder {
 
   private _consumeText(token: lex.Token) {
     let text = token.parts[0];
-    if (text.length > 0 && text[0] == "\n") {
+    if (text.length > 0 && text[0] === "\n") {
       const parent = this._getParentElement();
-      if (parent != null && parent.children.length == 0 && this.getTagDefinition(parent.name).ignoreFirstLf) {
+      if (parent !== null && parent.children.length === 0 && this.getTagDefinition(parent.name).ignoreFirstLf) {
         text = text.substring(1);
       }
     }
@@ -325,7 +332,7 @@ class _TreeBuilder {
   private _popElement(fullName: string): boolean {
     for (let stackIndex = this._elementStack.length - 1; stackIndex >= 0; stackIndex--) {
       const el = this._elementStack[stackIndex];
-      if (el.name == fullName) {
+      if (el.name === fullName) {
         this._elementStack.splice(stackIndex, this._elementStack.length - stackIndex);
         return true;
       }
@@ -375,7 +382,7 @@ class _TreeBuilder {
 
   private _addToParent(node: html.Node) {
     const parent = this._getParentElement();
-    if (parent != null) {
+    if (parent !== null) {
       parent.children.push(node);
     } else {
       this._rootNodes.push(node);
@@ -407,9 +414,9 @@ class _TreeBuilder {
   }
 
   private _getElementFullName(prefix: string, localName: string, parentElement: html.Element | null): string {
-    if (prefix == null) {
+    if (prefix === null) {
       prefix = this.getTagDefinition(localName).implicitNamespacePrefix!;
-      if (prefix == null && parentElement != null) {
+      if (prefix === null && parentElement !== null) {
         prefix = getNsPrefix(parentElement.name);
       }
     }

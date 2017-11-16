@@ -9,14 +9,14 @@
 import {TagContentType, TagDefinition} from "./tags";
 
 export class XmlTagDefinition implements TagDefinition {
-  closedByParent: boolean = false;
+  closedByParent = false;
   requiredParents: {[key: string]: boolean};
   parentToAdd: string;
   implicitNamespacePrefix: string;
   contentType: TagContentType = TagContentType.PARSABLE_DATA;
-  isVoid: boolean = false;
-  ignoreFirstLf: boolean = false;
-  canSelfClose: boolean = true;
+  isVoid = false;
+  ignoreFirstLf = false;
+  canSelfClose = true;
 
   requireExtraParent(currentParent: string): boolean {
     return false;

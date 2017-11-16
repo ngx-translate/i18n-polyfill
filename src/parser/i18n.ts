@@ -15,13 +15,13 @@ const _expParser = new Parser(new Lexer());
 export function createI18nMessageFactory(
   interpolationConfig: InterpolationConfig
 ): (nodes: html.Node[], meaning: string, description: string, id: string) => i18n.Message {
-  const visitor = new _I18nVisitor(_expParser, interpolationConfig);
+  const visitor = new I18nVisitor(_expParser, interpolationConfig);
 
   return (nodes: html.Node[], meaning: string, description: string, id: string) =>
     visitor.toI18nMessage(nodes, meaning, description, id);
 }
 
-class _I18nVisitor implements html.Visitor {
+class I18nVisitor implements html.Visitor {
   private _isIcu: boolean;
   private _icuDepth: number;
   private _placeholderRegistry: PlaceholderRegistry;
@@ -31,7 +31,7 @@ class _I18nVisitor implements html.Visitor {
   constructor(private _expressionParser: Parser, private _interpolationConfig: InterpolationConfig) {}
 
   public toI18nMessage(nodes: html.Node[], meaning: string, description: string, id: string): i18n.Message {
-    this._isIcu = nodes.length == 1 && nodes[0] instanceof html.Expansion;
+    this._isIcu = nodes.length === 1 && nodes[0] instanceof html.Expansion;
     this._icuDepth = 0;
     this._placeholderRegistry = new PlaceholderRegistry();
     this._placeholderToContent = {};
@@ -105,7 +105,7 @@ class _I18nVisitor implements html.Visitor {
     // message id.
     // TODO(vicb): add a html.Node -> i18n.Message cache to avoid having to re-create the msg
     const phName = this._placeholderRegistry.getPlaceholderName("ICU", icu.sourceSpan.toString());
-    const visitor = new _I18nVisitor(this._expressionParser, this._interpolationConfig);
+    const visitor = new I18nVisitor(this._expressionParser, this._interpolationConfig);
     this._placeholderToMessage[phName] = visitor.toI18nMessage([icu], "", "", "");
     return new i18n.IcuPlaceholder(i18nIcu, phName, icu.sourceSpan);
   }
@@ -133,7 +133,7 @@ class _I18nVisitor implements html.Visitor {
 
     for (let i = 0; i < splitInterpolation.strings.length - 1; i++) {
       const expression = splitInterpolation.expressions[i];
-      const baseName = _extractPlaceholderName(expression) || "INTERPOLATION";
+      const baseName = extractPlaceholderName(expression) || "INTERPOLATION";
       const phName = this._placeholderRegistry.getPlaceholderName(baseName, expression);
 
       if (splitInterpolation.strings[i].length) {
@@ -156,6 +156,6 @@ class _I18nVisitor implements html.Visitor {
 
 const _CUSTOM_PH_EXP = /\/\/[\s\S]*i18n[\s\S]*\([\s\S]*ph[\s\S]*=[\s\S]*("|')([\s\S]*?)\1[\s\S]*\)/g;
 
-function _extractPlaceholderName(input: string): string {
+function extractPlaceholderName(input: string): string {
   return input.split(_CUSTOM_PH_EXP)[2];
 }

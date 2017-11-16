@@ -7,11 +7,11 @@
  */
 
 import * as ml from "../ast/ast";
+import * as i18n from "../ast/i18n_ast";
 import {I18nError} from "../ast/parse_util";
 import {Parser} from "../ast/parser";
 import {getXmlTagDefinition} from "../ast/xml_tags";
-import {I18nMessagesById, IcuContent} from "./serializer";
-import {Message} from "../ast/i18n_ast";
+import {I18nMessagesById} from "./serializer";
 import {digest} from "./digest";
 import {xmbMapper} from "./xmb";
 
@@ -22,44 +22,42 @@ const _PLACEHOLDER_TAG = "ph";
 export function xtbLoadToI18n(content: string): I18nMessagesById {
   // xtb to xml nodes
   const xtbParser = new XtbParser();
-  const {msgIdToHtml, errors} = xtbParser.parse(content);
+  const {msgIdToHtml, errors: parseErrors} = xtbParser.parse(content);
 
-  // xml nodes to i18n messages
-  const i18nMessagesById: {[msgId: string]: string[]} = {};
+  if (parseErrors.length) {
+    throw new Error(`xtb parse errors:\n${parseErrors.join("\n")}`);
+  }
+
+  // xml nodes to i18n nodes
+  const i18nNodesByMsgId: {[msgId: string]: i18n.Node[]} = {};
   const converter = new XmlToI18n();
 
   // Because we should be able to load xtb files that rely on features not supported by angular,
   // we need to delay the conversion of html to i18n nodes so that non angular messages are not
   // converted
   Object.keys(msgIdToHtml).forEach(msgId => {
-    const valueFn = function() {
-      const {i18nMessages, errors} = converter.convert(msgIdToHtml[msgId]);
+    const valueFn = () => {
+      const {i18nNodes, errors} = converter.convert(msgIdToHtml[msgId]);
       if (errors.length) {
         throw new Error(`xtb parse errors:\n${errors.join("\n")}`);
       }
-      return i18nMessages;
+      return i18nNodes;
     };
-    createLazyProperty(i18nMessagesById, msgId, valueFn);
+    createLazyProperty(i18nNodesByMsgId, msgId, valueFn);
   });
 
-  if (errors.length) {
-    throw new Error(`xtb parse errors:\n${errors.join("\n")}`);
-  }
-
-  return i18nMessagesById;
+  return i18nNodesByMsgId;
 }
 
-export function xtbDigest(message: Message): string {
-  return digest(message);
-}
+export const xtbDigest = digest;
 
 export const xtbMapper = xmbMapper;
 
-function createLazyProperty(messages: {[msgId: string]: string[]}, id: string, valueFn: () => any) {
+function createLazyProperty(messages: any, id: string, valueFn: () => any) {
   Object.defineProperty(messages, id, {
     configurable: true,
     enumerable: true,
-    get: function() {
+    get: () => {
       const value = valueFn();
       Object.defineProperty(messages, id, {enumerable: true, value});
       return value;
@@ -150,41 +148,41 @@ class XmlToI18n implements ml.Visitor {
     const xmlIcu = new Parser(getXmlTagDefinition).parse(message, "", true);
     this._errors = xmlIcu.errors;
 
-    const i18nMessages =
-      this._errors.length > 0 || xmlIcu.rootNodes.length == 0 ? [] : ml.visitAll(this, xmlIcu.rootNodes);
+    const i18nNodes =
+      this._errors.length > 0 || xmlIcu.rootNodes.length === 0 ? [] : ml.visitAll(this, xmlIcu.rootNodes);
 
     return {
-      i18nMessages,
+      i18nNodes,
       errors: this._errors
     };
   }
 
-  visitText(text: ml.Text, context: any): string {
-    return text.value;
+  visitText(text: ml.Text, context: any) {
+    return new i18n.Text(text.value, text.sourceSpan!);
   }
 
-  visitExpansion(icu: ml.Expansion, context: any): IcuContent {
-    const caseMap: {[value: string]: ml.Node[]} = {};
+  visitExpansion(icu: ml.Expansion, context: any) {
+    const caseMap: {[value: string]: i18n.Node} = {};
 
     ml.visitAll(this, icu.cases).forEach(c => {
-      caseMap[c.value] = c.nodes;
+      caseMap[c.value] = new i18n.Container(c.nodes, icu.sourceSpan);
     });
 
-    return {expression: icu.switchValue, type: icu.type, cases: caseMap};
+    return new i18n.Icu(icu.switchValue, icu.type, caseMap, icu.sourceSpan);
   }
 
-  visitExpansionCase(icuCase: ml.ExpansionCase, context: any): {value: string; nodes: ml.Node[]} {
+  visitExpansionCase(icuCase: ml.ExpansionCase, context: any): any {
     return {
       value: icuCase.value,
       nodes: ml.visitAll(this, icuCase.expression)
     };
   }
 
-  visitElement(el: ml.Element, context: any): string | null {
+  visitElement(el: ml.Element, context: any): i18n.Placeholder | null {
     if (el.name === _PLACEHOLDER_TAG) {
       const nameAttr = el.attrs.find(attr => attr.name === "name");
       if (nameAttr) {
-        return nameAttr.value;
+        return new i18n.Placeholder("", nameAttr.value, el.sourceSpan!);
       }
 
       this._addError(el, `<${_PLACEHOLDER_TAG}> misses the "name" attribute`);

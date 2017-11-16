@@ -6,8 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import {xmbDigest, xmbLoadToXml, xmbMapper, xmbWrite} from "../../src/serializers/xmb";
-import {DEFAULT_INTERPOLATION_CONFIG} from "../../src/ast/interpolation_config";
-import {MessageBundle} from "../../src/parser/message-bundle";
+import {MessageBundle} from "../../src/extractor/message-bundle";
 
 const XMB = `<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE messagebundle [
@@ -48,11 +47,7 @@ lines</msg>
 describe("Xmb serializer", () => {
   it("should write xmb", () => {
     const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate(
-      "This is a test message {sex, select, other {deeply nested}}",
-      "file.ts",
-      DEFAULT_INTERPOLATION_CONFIG
-    );
+    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
     expect(messageBundle.write(xmbWrite, xmbDigest, xmbMapper)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE messagebundle [
 <!ELEMENT messagebundle (msg)*>
@@ -76,8 +71,8 @@ describe("Xmb serializer", () => {
 <!ELEMENT ex (#PCDATA)>
 ]>
 <messagebundle>
-  <msg id="1201948414570017983"><source>file.ts:1</source>{VAR_SELECT, select, other {deeply nested} }</msg>
   <msg id="5980763297918130233"><source>file.ts:1</source>This is a test message <ph name="ICU"><ex>{sex, select, other {...}}</ex></ph></msg>
+  <msg id="1201948414570017983"><source>file.ts:1</source>{VAR_SELECT, select, other {deeply nested} }</msg>
 </messagebundle>
 `);
   });
@@ -85,11 +80,7 @@ describe("Xmb serializer", () => {
   it("should write xmb with merged content", () => {
     const nodes = xmbLoadToXml(XMB);
     const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate(
-      "This is a test message {sex, select, other {deeply nested}}",
-      "file.ts",
-      DEFAULT_INTERPOLATION_CONFIG
-    );
+    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
     expect(messageBundle.write(xmbWrite, xmbDigest, xmbMapper, nodes)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE messagebundle [
 <!ELEMENT messagebundle (msg)*>
@@ -123,8 +114,8 @@ describe("Xmb serializer", () => {
   <msg id="5229984852258993423"><source>file.ts:9</source>{VAR_PLURAL, plural, =0 {{VAR_SELECT, select, other {<ph name="START_PARAGRAPH"><ex><p></ex></ph>deeply nested<ph name="CLOSE_PARAGRAPH"><ex></p></ex></ph>} } } =other {a lot} }</msg>
   <msg id="2340165783990709777"><source>file.ts:10,11</source>multi
 lines</msg>
-  <msg id="1201948414570017983"><source>file.ts:1</source>{VAR_SELECT, select, other {deeply nested} }</msg>
   <msg id="5980763297918130233"><source>file.ts:1</source>This is a test message <ph name="ICU"><ex>{sex, select, other {...}}</ex></ph></msg>
+  <msg id="1201948414570017983"><source>file.ts:1</source>{VAR_SELECT, select, other {deeply nested} }</msg>
 </messagebundle>
 `);
   });

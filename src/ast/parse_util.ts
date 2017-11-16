@@ -30,8 +30,8 @@ export class ParseLocation {
       while (ctxChars < maxChars && startOffset > 0) {
         startOffset--;
         ctxChars++;
-        if (content[startOffset] == "\n") {
-          if (++ctxLines == maxLines) {
+        if (content[startOffset] === "\n") {
+          if (++ctxLines === maxLines) {
             break;
           }
         }
@@ -42,8 +42,8 @@ export class ParseLocation {
       while (ctxChars < maxChars && endOffset < content.length - 1) {
         endOffset++;
         ctxChars++;
-        if (content[endOffset] == "\n") {
-          if (++ctxLines == maxLines) {
+        if (content[endOffset] === "\n") {
+          if (++ctxLines === maxLines) {
             break;
           }
         }
@@ -60,7 +60,7 @@ export class ParseLocation {
 }
 
 export class ParseSourceFile {
-  constructor(public content: string, public url: string = "") {}
+  constructor(public content: string, public url = "") {}
 }
 
 export class ParseSourceSpan {
@@ -104,5 +104,5 @@ export class I18nError extends ParseError {
 }
 
 export function escapeRegExp(s: string): string {
-  return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
+  return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, "\\$1");
 }

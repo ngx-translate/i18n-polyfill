@@ -6,6 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
+/* tslint:disable */
+
 import {TagContentType, TagDefinition} from './tags';
 
 export class HtmlTagDefinition implements TagDefinition {
@@ -59,7 +61,7 @@ export class HtmlTagDefinition implements TagDefinition {
 
     const lcParent = currentParent.toLowerCase();
     const isParentTemplate = lcParent === 'template' || currentParent === 'ng-template';
-    return !isParentTemplate && this.requiredParents[lcParent] != true;
+    return !isParentTemplate && this.requiredParents[lcParent] !== true;
   }
 
   isClosedByChild(name: string): boolean {

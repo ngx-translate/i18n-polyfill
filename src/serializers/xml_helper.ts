@@ -5,6 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+
 import * as ml from "../ast/ast";
 
 export interface IVisitor {
@@ -15,10 +16,10 @@ export interface IVisitor {
   visitDoctype(doctype: Doctype): any;
 }
 
-class _Visitor implements IVisitor {
+class Visitor implements IVisitor {
   visitTag(tag: Tag): string {
     const strAttrs = this._serializeAttributes(tag.attrs);
-    if (tag.children.length == 0) {
+    if (tag.children.length === 0) {
       return `<${tag.name}${strAttrs}/>`;
     }
 
@@ -35,7 +36,7 @@ class _Visitor implements IVisitor {
     element.attrs.forEach((attr: ml.Attribute) => {
       attrs[attr.name] = attr.value;
     });
-    const tag = new Tag(element.name, attrs, <any>element.children);
+    const tag = new Tag(element.name, attrs, element.children as any);
     return this.visitTag(tag);
   }
 
@@ -55,7 +56,7 @@ class _Visitor implements IVisitor {
   }
 }
 
-const _visitor = new _Visitor();
+const _visitor = new Visitor();
 
 export function serialize(nodes: Node[]): string {
   return nodes.map((node: Node): string => node.visit(_visitor)).join("");
@@ -113,7 +114,7 @@ export class Text implements Node {
 }
 
 export class CR extends Text {
-  constructor(ws: number = 0) {
+  constructor(ws = 0) {
     super(`\n${new Array(ws + 1).join(" ")}`);
   }
 }
@@ -127,5 +128,5 @@ const _ESCAPED_CHARS: [RegExp, string][] = [
 ];
 
 function _escapeXml(text: string): string {
-  return _ESCAPED_CHARS.reduce((text: string, entry: [RegExp, string]) => text.replace(entry[0], entry[1]), text);
+  return _ESCAPED_CHARS.reduce((str: string, entry: [RegExp, string]) => str.replace(entry[0], entry[1]), text);
 }

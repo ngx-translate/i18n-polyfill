@@ -12,7 +12,7 @@ import * as xml from "./xml_helper";
 import {Parser} from "../ast/parser";
 import {getXmlTagDefinition} from "../ast/xml_tags";
 import {I18nError} from "../ast/parse_util";
-import {I18nMessagesById, IcuContent} from "./serializer";
+import {HtmlToXmlParser, I18nMessagesById} from "./serializer";
 import {decimalDigest} from "./digest";
 
 const _VERSION = "2.0";
@@ -35,41 +35,33 @@ export function xliff2LoadToI18n(content: string): I18nMessagesById {
   const xliff2Parser = new Xliff2Parser();
   const {msgIdToHtml, errors} = xliff2Parser.parse(content);
 
-  // xml nodes to i18n messages
-  const i18nMessagesById: {[msgId: string]: string[]} = {};
+  // xml nodes to i18n nodes
+  const i18nNodesByMsgId: {[msgId: string]: i18n.Node[]} = {};
   const converter = new XmlToI18n();
 
   Object.keys(msgIdToHtml).forEach(msgId => {
-    const {i18nMessages, errors: e} = converter.convert(msgIdToHtml[msgId]);
-    const flatNodes: string[] = [];
-    i18nMessages.forEach((i18nMessage: string | string[]) => {
-      if (Array.isArray(i18nMessage)) {
-        flatNodes.push(...i18nMessage);
-      } else {
-        flatNodes.push(i18nMessage);
-      }
-    });
+    const {i18nNodes, errors: e} = converter.convert(msgIdToHtml[msgId]);
     errors.push(...e);
-    i18nMessagesById[msgId] = flatNodes;
+    i18nNodesByMsgId[msgId] = i18nNodes;
   });
 
   if (errors.length) {
     throw new Error(`xliff2 parse errors:\n${errors.join("\n")}`);
   }
 
-  return i18nMessagesById;
+  return i18nNodesByMsgId;
 }
 
-// used to merge translations
+// used to merge translations when extracting
 export function xliff2LoadToXml(content: string): xml.Node[] {
-  const xliff2Parser = new Xliff2XmlParser();
-  const {nodes, errors} = xliff2Parser.parse(content);
+  const parser = new HtmlToXmlParser(_UNIT_TAG);
+  const {nodes, errors} = parser.parse(content);
 
   if (errors.length) {
     throw new Error(`xliff2 parse errors:\n${errors.join("\n")}`);
   }
 
-  return <any>nodes;
+  return nodes;
 }
 
 export function xliff2Write(messages: i18n.Message[], locale: string | null, existingNodes: xml.Node[] = []): string {
@@ -130,48 +122,7 @@ export function xliff2Write(messages: i18n.Message[], locale: string | null, exi
   return xml.serialize([new xml.Declaration({version: "1.0", encoding: "UTF-8"}), new xml.CR(), xliff, new xml.CR()]);
 }
 
-export function xliff2Digest(message: i18n.Message): string {
-  return decimalDigest(message);
-}
-
-class Xliff2XmlParser implements ml.Visitor {
-  private errors: I18nError[];
-  private nodes: ml.Node[];
-
-  parse(xliff: string) {
-    this.nodes = [];
-
-    const xml = new Parser(getXmlTagDefinition).parse(xliff, "", false);
-
-    this.errors = xml.errors;
-    ml.visitAll(this, xml.rootNodes, null);
-
-    return {
-      nodes: this.nodes,
-      errors: this.errors
-    };
-  }
-
-  visitElement(element: ml.Element, context: any): any {
-    switch (element.name) {
-      case _UNIT_TAG:
-        this.nodes.push(element);
-        break;
-      default:
-        ml.visitAll(this, element.children, null);
-    }
-  }
-
-  visitAttribute(attribute: ml.Attribute, context: any): any {}
-
-  visitText(text: ml.Text, context: any): any {}
-
-  visitComment(comment: ml.Comment, context: any): any {}
-
-  visitExpansion(expansion: ml.Expansion, context: any): any {}
-
-  visitExpansionCase(expansionCase: ml.ExpansionCase, context: any): any {}
-}
+export const xliff2Digest = decimalDigest;
 
 // Extract messages as xml nodes from the xliff file
 class Xliff2Parser implements ml.Visitor {
@@ -179,14 +130,14 @@ class Xliff2Parser implements ml.Visitor {
   private _errors: I18nError[];
   private _msgIdToHtml: {[msgId: string]: string};
 
-  parse(xliff: string) {
+  parse(content: string) {
     this._unitMlString = null;
     this._msgIdToHtml = {};
 
-    const xml = new Parser(getXmlTagDefinition).parse(xliff, "", false);
+    const parser = new Parser(getXmlTagDefinition).parse(content, "", false);
 
-    this._errors = xml.errors;
-    ml.visitAll(this, xml.rootNodes, null);
+    this._errors = parser.errors;
+    ml.visitAll(this, parser.rootNodes, null);
 
     return {
       msgIdToHtml: this._msgIdToHtml,
@@ -267,25 +218,25 @@ class XmlToI18n implements ml.Visitor {
     const xmlIcu = new Parser(getXmlTagDefinition).parse(message, "", true);
     this._errors = xmlIcu.errors;
 
-    const i18nMessages =
-      this._errors.length > 0 || xmlIcu.rootNodes.length == 0 ? [] : [].concat(...ml.visitAll(this, xmlIcu.rootNodes));
+    const i18nNodes =
+      this._errors.length > 0 || xmlIcu.rootNodes.length === 0 ? [] : [].concat(...ml.visitAll(this, xmlIcu.rootNodes));
 
     return {
-      i18nMessages,
+      i18nNodes,
       errors: this._errors
     };
   }
 
-  visitText(text: ml.Text, context: any): string {
-    return text.value;
+  visitText(text: ml.Text, context: any) {
+    return new i18n.Text(text.value, text.sourceSpan);
   }
 
-  visitElement(el: ml.Element, context: any): string | string[] | null {
+  visitElement(el: ml.Element, context: any): i18n.Node[] | null {
     switch (el.name) {
       case _PLACEHOLDER_TAG:
         const nameAttr = el.attrs.find(attr => attr.name === "equiv");
         if (nameAttr) {
-          return nameAttr.value;
+          return [new i18n.Placeholder("", nameAttr.value, el.sourceSpan)];
         }
 
         this._addError(el, `<${_PLACEHOLDER_TAG}> misses the "equiv" attribute`);
@@ -299,7 +250,16 @@ class XmlToI18n implements ml.Visitor {
         } else if (!endAttr) {
           this._addError(el, `<${_PLACEHOLDER_TAG}> misses the "equivEnd" attribute`);
         } else {
-          return [startAttr.value, ...el.children.map(node => node.visit(this, null)), endAttr.value];
+          const startId = startAttr.value;
+          const endId = endAttr.value;
+
+          const nodes: i18n.Node[] = [];
+
+          return nodes.concat(
+            new i18n.Placeholder("", startId, el.sourceSpan),
+            ...el.children.map(node => node.visit(this, null)),
+            new i18n.Placeholder("", endId, el.sourceSpan)
+          );
         }
         break;
       default:
@@ -309,14 +269,14 @@ class XmlToI18n implements ml.Visitor {
     return null;
   }
 
-  visitExpansion(icu: ml.Expansion, context: any): IcuContent {
-    const caseMap: {[value: string]: ml.Node[]} = {};
+  visitExpansion(icu: ml.Expansion, context: any) {
+    const caseMap: {[value: string]: i18n.Node} = {};
 
     ml.visitAll(this, icu.cases).forEach((c: any) => {
-      caseMap[c.value] = c.nodes;
+      caseMap[c.value] = new i18n.Container(c.nodes, icu.sourceSpan);
     });
 
-    return {expression: icu.switchValue, type: icu.type, cases: caseMap};
+    return new i18n.Icu(icu.switchValue, icu.type, caseMap, icu.sourceSpan);
   }
 
   visitExpansionCase(icuCase: ml.ExpansionCase, context: any): any {
@@ -367,7 +327,7 @@ class WriteVisitor implements i18n.Visitor {
       const tagPh = new xml.Tag(_PLACEHOLDER_TAG, {
         id: (this._nextPlaceholderId++).toString(),
         equiv: ph.startName,
-        type: type,
+        type,
         disp: `<${ph.tag}/>`
       });
       return [tagPh];
@@ -377,7 +337,7 @@ class WriteVisitor implements i18n.Visitor {
       id: (this._nextPlaceholderId++).toString(),
       equivStart: ph.startName,
       equivEnd: ph.closeName,
-      type: type,
+      type,
       dispStart: `<${ph.tag}>`,
       dispEnd: `</${ph.tag}>`
     });

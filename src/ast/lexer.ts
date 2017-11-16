@@ -6,6 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
+/* tslint:disable */
 import * as chars from "./chars";
 import {ParseError, ParseLocation, ParseSourceFile, ParseSourceSpan} from "./parse_util";
 
@@ -53,10 +54,10 @@ export function tokenize(
   source: string,
   url: string,
   getTagDefinition: (tagName: string) => TagDefinition,
-  tokenizeExpansionForms: boolean = false,
+  tokenizeExpansionForms = false,
   interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG
 ): TokenizeResult {
-  return new _Tokenizer(
+  return new Tokenizer(
     new ParseSourceFile(source, url),
     getTagDefinition,
     tokenizeExpansionForms,
@@ -75,24 +76,24 @@ function _unknownEntityErrorMsg(entitySrc: string): string {
   return `Unknown entity "${entitySrc}" - use the "&#<decimal>;" or  "&#x<hex>;" syntax`;
 }
 
-class _ControlFlowError {
+class ControlFlowError {
   constructor(public error: TokenError) {}
 }
 
 // See http://www.w3.org/TR/html51/syntax.html#writing
-class _Tokenizer {
+class Tokenizer {
   private _input: string;
   private _length: number;
   // Note: this is always lowercase!
-  private _peek: number = -1;
-  private _nextPeek: number = -1;
-  private _index: number = -1;
-  private _line: number = 0;
-  private _column: number = -1;
+  private _peek = -1;
+  private _nextPeek = -1;
+  private _index = -1;
+  private _line = 0;
+  private _column = -1;
   private _currentTokenStart: ParseLocation;
   private _currentTokenType: TokenType;
   private _expansionCaseStack: TokenType[] = [];
-  private _inInterpolation: boolean = false;
+  private _inInterpolation = false;
 
   tokens: Token[] = [];
   errors: TokenError[] = [];
@@ -144,7 +145,7 @@ class _Tokenizer {
           this._consumeText();
         }
       } catch (e) {
-        if (e instanceof _ControlFlowError) {
+        if (e instanceof ControlFlowError) {
           this.errors.push(e.error);
         } else {
           throw e;
@@ -210,14 +211,14 @@ class _Tokenizer {
     return token;
   }
 
-  private _createError(msg: string, span: ParseSourceSpan): _ControlFlowError {
+  private _createError(msg: string, span: ParseSourceSpan): ControlFlowError {
     if (this._isInExpansionForm()) {
       msg += ` (Do you have an unescaped "{" in your template? Use "{{ '{' }}") to escape it.)`;
     }
     const error = new TokenError(msg, this._currentTokenType, span);
     this._currentTokenStart = null!;
     this._currentTokenType = null!;
-    return new _ControlFlowError(error);
+    return new ControlFlowError(error);
   }
 
   private _advance() {
@@ -328,7 +329,7 @@ class _Tokenizer {
       const isHex = this._attemptCharCode(chars.$x) || this._attemptCharCode(chars.$X);
       const numberStart = this._getLocation().offset;
       this._attemptCharCodeUntilFn(isDigitEntityEnd);
-      if (this._peek != chars.$SEMICOLON) {
+      if (this._peek !== chars.$SEMICOLON) {
         throw this._createError(_unexpectedCharacterErrorMsg(this._peek), this._getSpan());
       }
       this._advance();
@@ -343,7 +344,7 @@ class _Tokenizer {
     } else {
       const startPosition = this._savePosition();
       this._attemptCharCodeUntilFn(isNamedEntityEnd);
-      if (this._peek != chars.$SEMICOLON) {
+      if (this._peek !== chars.$SEMICOLON) {
         this._restorePosition(startPosition);
         return "&";
       }
@@ -446,7 +447,7 @@ class _Tokenizer {
       }
       this._consumeTagOpenEnd();
     } catch (e) {
-      if (e instanceof _ControlFlowError) {
+      if (e instanceof ControlFlowError) {
         // When the start tag is invalid, assume we want a "<"
         this._restorePosition(savedPos);
         // Back to back text tokens are merged at the end
@@ -681,17 +682,19 @@ function isPrefixEnd(code: number): boolean {
 }
 
 function isDigitEntityEnd(code: number): boolean {
-  return code == chars.$SEMICOLON || code == chars.$EOF || !chars.isAsciiHexDigit(code);
+  return code === chars.$SEMICOLON || code === chars.$EOF || !chars.isAsciiHexDigit(code);
 }
 
 function isNamedEntityEnd(code: number): boolean {
-  return code == chars.$SEMICOLON || code == chars.$EOF || !chars.isAsciiLetter(code);
+  return code === chars.$SEMICOLON || code === chars.$EOF || !chars.isAsciiLetter(code);
 }
 
 function isExpansionFormStart(input: string, offset: number, interpolationConfig: InterpolationConfig): boolean {
-  const isInterpolationStart = interpolationConfig ? input.indexOf(interpolationConfig.start, offset) == offset : false;
+  const isInterpolationStart = interpolationConfig
+    ? input.indexOf(interpolationConfig.start, offset) === offset
+    : false;
 
-  return input.charCodeAt(offset) == chars.$LBRACE && !isInterpolationStart;
+  return input.charCodeAt(offset) === chars.$LBRACE && !isInterpolationStart;
 }
 
 function isExpansionCaseStart(peek: number): boolean {
@@ -699,7 +702,7 @@ function isExpansionCaseStart(peek: number): boolean {
 }
 
 function compareCharCodeCaseInsensitive(code1: number, code2: number): boolean {
-  return toUpperCaseCharCode(code1) == toUpperCaseCharCode(code2);
+  return toUpperCaseCharCode(code1) === toUpperCaseCharCode(code2);
 }
 
 function toUpperCaseCharCode(code: number): number {
@@ -711,7 +714,7 @@ function mergeTextTokens(srcTokens: Token[]): Token[] {
   let lastDstToken: Token | undefined = undefined;
   for (let i = 0; i < srcTokens.length; i++) {
     const token = srcTokens[i];
-    if (lastDstToken && lastDstToken.type == TokenType.TEXT && token.type == TokenType.TEXT) {
+    if (lastDstToken && lastDstToken.type === TokenType.TEXT && token.type === TokenType.TEXT) {
       lastDstToken.parts[0] += token.parts[0];
       lastDstToken.sourceSpan.end = token.sourceSpan.end;
     } else {

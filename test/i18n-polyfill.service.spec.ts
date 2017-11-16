@@ -1,6 +1,6 @@
 import {TestBed} from "@angular/core/testing";
-import {TRANSLATIONS, TRANSLATIONS_FORMAT} from "@angular/core";
-import {I18n} from "../src/i18n-polyfill.service";
+import {LOCALE_ID, MissingTranslationStrategy, StaticProvider, TRANSLATIONS, TRANSLATIONS_FORMAT} from "@angular/core";
+import {I18n, MISSING_TRANSLATION_STRATEGY} from "../src";
 import {CommonModule} from "@angular/common";
 
 const XLIFF = `<?xml version="1.0" encoding="UTF-8" ?>
@@ -36,37 +36,44 @@ const XLIFF = `<?xml version="1.0" encoding="UTF-8" ?>
 </xliff>
 `;
 
+function getService(providers: StaticProvider[] = []) {
+  TestBed.configureTestingModule({
+    imports: [CommonModule],
+    providers: [
+      ...providers,
+      {provide: TRANSLATIONS_FORMAT, useValue: "xlf"},
+      {provide: TRANSLATIONS, useValue: XLIFF},
+      {provide: LOCALE_ID, useValue: "fr"},
+      I18n
+    ]
+  });
+  return TestBed.get(I18n);
+}
+
 describe("Polyfill", () => {
-  let test: I18n;
-
-  beforeEach(() => {
-    const i = TestBed.configureTestingModule({
-      imports: [CommonModule],
-      providers: [{provide: TRANSLATIONS_FORMAT, useValue: "xlf"}, {provide: TRANSLATIONS, useValue: XLIFF}, I18n]
-    });
-    test = TestBed.get(I18n);
-
-    // fixture = TestBed.createComponent(SampleComponent);
-    //
-    // comp = fixture.componentInstance; // BannerComponent test instance
-    // query for the title <h1> by CSS element selector
-    // de = fixture.debugElement.query(By.css("h1"));
-    // el = de.nativeElement;
+  it("Should return content if unable to find a translation", () => {
+    const i18nService = getService();
+    expect(i18nService("anything")).toBe("anything");
   });
 
-  xit("Should return content if unable to find a translation", () => {
-    expect(test("anything")).toBe("anything");
+  it("Should throw is missing translation strategy is Error & if unable to find a translation", () => {
+    const i18nService = getService([
+      {provide: MISSING_TRANSLATION_STRATEGY, useValue: MissingTranslationStrategy.Error}
+    ]);
+    expect(() => i18nService("anything")).toThrow(/Missing translation for message/);
   });
 
-  xit("Should return translated content if it finds the translations", () => {
-    expect(test("This is a test message {sex, select, other {deeply nested}}")).toBe(
+  it("Should return translated content if it finds the translations", () => {
+    const i18nService = getService();
+    expect(i18nService("This is a test message {sex, select, other {deeply nested}}")).toBe(
       "Ceci est un message de test profondément imbriqué"
     );
   });
 
   it("Should support custom ids", () => {
+    const i18nService = getService();
     expect(
-      test({
+      i18nService({
         value: "Custom message {sex, select, other {deeply nested}} !!",
         id: "custom"
       })

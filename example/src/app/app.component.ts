@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import {I18n} from "../../../src/i18n-polyfill.service";
+import {I18n} from "../../../src";
 
 @Component({
   selector: "app-root",
@@ -10,7 +10,7 @@ export class AppComponent {
   title = "app";
 
   constructor(private i18n: I18n) {
-    i18n("This is a test {{ok}}", {ok: "value"});
+    i18n("This is a test {{ok}} !", {ok: "value"});
   }
 
   test() {
