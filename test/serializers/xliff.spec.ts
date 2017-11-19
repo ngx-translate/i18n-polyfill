@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {xliffDigest, xliffLoadToI18n, xliffLoadToXml, xliffWrite} from "../../src/serializers/xliff";
-import {MessageBundle} from "../../src/extractor/message-bundle";
+import {xliffDigest, xliffLoadToI18n, xliffLoadToXml, xliffWrite} from "../../lib/src/serializers/xliff";
+import {MessageBundle} from "../../lib/extractor/src/message-bundle";
 
 const XLIFF = `<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
@@ -15,6 +15,10 @@ const XLIFF = `<?xml version="1.0" encoding="UTF-8" ?>
       <trans-unit id="983775b9a51ce14b036be72d4cfd65d68d64e231" datatype="html">
         <source>translatable attribute</source>
         <target>etubirtta elbatalsnart</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">file.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="ec1d033f2436133c14ab038286c4f5df4697484a" datatype="html">
         <source>translatable element <x id="START_BOLD_TEXT" ctype="b"/>with placeholders<x id="CLOSE_BOLD_TEXT" ctype="b"/> <x id="INTERPOLATION"/></source>
@@ -75,10 +79,7 @@ describe("Xliff serializer", () => {
 
   it("should write xliff", () => {
     const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate(
-      "This is a test message {sex, select, other {deeply nested}}",
-      "file.ts"
-    );
+    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
     expect(messageBundle.write(xliffWrite, xliffDigest)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template">
@@ -104,19 +105,20 @@ describe("Xliff serializer", () => {
   });
 
   it("should write xliff with merged content", () => {
-    const nodes = xliffLoadToXml(XLIFF);
     const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate(
-      "This is a test message {sex, select, other {deeply nested}}",
-      "file.ts"
-    );
-    expect(messageBundle.write(xliffWrite, xliffDigest, undefined, nodes))
+    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
+    expect(messageBundle.write(xliffWrite, xliffDigest, xliffLoadToXml(XLIFF)))
       .toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template">
-    <body><trans-unit id="983775b9a51ce14b036be72d4cfd65d68d64e231" datatype="html">
+    <body>
+      <trans-unit id="983775b9a51ce14b036be72d4cfd65d68d64e231" datatype="html">
         <source>translatable attribute</source>
         <target>etubirtta elbatalsnart</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">file.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
       </trans-unit><trans-unit id="ec1d033f2436133c14ab038286c4f5df4697484a" datatype="html">
         <source>translatable element <x id="START_BOLD_TEXT" ctype="b"/>with placeholders<x id="CLOSE_BOLD_TEXT" ctype="b"/> <x id="INTERPOLATION"/></source>
         <target><x id="INTERPOLATION"/> footnemele elbatalsnart <x id="START_BOLD_TEXT" ctype="x-b"/>sredlohecalp htiw<x id="CLOSE_BOLD_TEXT" ctype="x-b"/></target>

@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {xtbLoadToI18n} from "../../src/serializers/xtb";
+import {xtbLoadToI18n} from "../../lib/src/serializers/xtb";
 
 export const XTB = `
 <translationbundle>

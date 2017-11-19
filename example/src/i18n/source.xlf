@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="fr" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="983775b9a51ce14b036be72d4cfd65d68d64e231" datatype="html">
+        <source>translatable attribute</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

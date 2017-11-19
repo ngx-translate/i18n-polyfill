@@ -10,21 +10,27 @@
     "email": "olivier.combe@gmail.com"
   },
   "keywords": [
-    "angular"
+    "angular",
+    "i18n"
   ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ngx-translate/i18n-polyfill/issues"
   },
-  "main": "i18n-polyfill.umd.js",
-  "module": "i18n-polyfill.js",
-  "jsnext:main": "i18n-polyfill.js",
-  "typings": "i18n-polyfill.d.ts",
-  "bin": {
-    "ngx-extractor": "./ngx-extractor.js"
-  },
   "peerDependencies": {
     "@angular/core": "^5.0.0",
-    "rxjs": "^5.5.0"
+    "@angular/common": "^5.0.0",
+    "typescript": "^2.4.2"
+  },
+  "dependencies": {
+    "glob": "7.1.2",
+    "yargs": "10.0.3"
+  },
+  "dist": "../dist",
+  "lib": {
+    "entryFile": "public_api.ts"
+  },
+  "bin": {
+    "ngx-extractor": "extractor/ngx-extractor.js"
   }
 }

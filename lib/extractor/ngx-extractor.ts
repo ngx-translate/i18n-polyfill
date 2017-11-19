@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import {getAst} from "./extractor/extractor";
+import {getAst, getFileContent} from "./src/extractor";
 import * as glob from "glob";
 import * as yargs from "yargs";
+import {existsSync, writeFileSync} from "fs";
 
 export function main(args) {
   const cli = yargs
@@ -22,30 +23,35 @@ export function main(args) {
         const files = glob.sync(path);
 
         if (!files || files.length === 0) {
-          throw new Error(`The path you supplied was not found or empty: '${path}'`);
+          throw new Error(`The path you supplied was not found or did not contain any matching file: '${path}'`);
         }
       });
       return true;
     })
-    .option("output", {
+    .option("out-file", {
       alias: "o",
       describe:
-        "Paths where you would like to save extracted strings. You can use path expansion, glob patterns and multiple paths",
-      type: "array",
+        "Path and name of the file where you would like to save extracted strings. If the file exists then the messages will be merged",
+      type: "string",
       normalize: true,
       required: true
     })
     .option("format", {
       alias: "f",
       describe: "Output format",
-      default: "json",
+      default: "xlf",
       type: "string",
-      choices: ["json", "namespaced-json", "pot"]
+      choices: ["xlf", "xlf2", "xmb"]
     })
     .exitProcess(true)
     .parse(args);
 
-  getAst(cli.input);
+  const messages = getAst(cli.input);
+  const content = getFileContent(messages, cli.outFile, cli.format);
+  if (!existsSync(cli.outFile)) {
+    console.log(`File "${cli.outFile}" doesn't exist, it will be created`);
+  }
+  writeFileSync(cli.outFile, content, {encoding: "utf8"});
   return 0;
 }
 

@@ -12,7 +12,7 @@ import * as xml from "./xml_helper";
 import {I18nError} from "../ast/parse_util";
 import {Parser} from "../ast/parser";
 import {getXmlTagDefinition} from "../ast/xml_tags";
-import {HtmlToXmlParser, I18nMessagesById} from "./serializer";
+import {HtmlToXmlParser, I18nMessagesById, XmlMessagesById} from "./serializer";
 import {digest} from "./digest";
 
 const _VERSION = "1.2";
@@ -49,22 +49,22 @@ export function xliffLoadToI18n(content: string): I18nMessagesById {
 }
 
 // used to merge translations when extracting
-export function xliffLoadToXml(content: string): xml.Node[] {
+export function xliffLoadToXml(content: string): XmlMessagesById {
   const parser = new HtmlToXmlParser(_UNIT_TAG);
-  const {nodes, errors} = parser.parse(content);
+  const {xmlMessagesById, errors} = parser.parse(content);
 
   if (errors.length) {
     throw new Error(`xliff parse errors:\n${errors.join("\n")}`);
   }
 
-  return nodes;
+  return xmlMessagesById;
 }
 
 // http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html
 // http://docs.oasis-open.org/xliff/v1.2/xliff-profile-html/xliff-profile-html-1.2.html
-export function xliffWrite(messages: i18n.Message[], locale: string | null, existingNodes: xml.Node[] = []): string {
+export function xliffWrite(messages: i18n.Message[], locale: string | null, existingNodes?: xml.Node[]): string {
   const visitor = new WriteVisitor();
-  const transUnits: xml.Node[] = existingNodes;
+  const transUnits: xml.Node[] = existingNodes && existingNodes.length ? [new xml.CR(6), ...existingNodes] : [];
 
   messages.forEach(message => {
     const contextTags: xml.Node[] = [];

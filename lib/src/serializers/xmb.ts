@@ -10,7 +10,7 @@ import * as i18n from "../ast/i18n_ast";
 import * as ml from "../ast/ast";
 import * as xml from "./xml_helper";
 import {decimalDigest} from "./digest";
-import {HtmlToXmlParser, PlaceholderMapper, SimplePlaceholderMapper} from "./serializer";
+import {HtmlToXmlParser, PlaceholderMapper, SimplePlaceholderMapper, XmlMessagesById} from "./serializer";
 
 const _MESSAGES_TAG = "messagebundle";
 const _MESSAGE_TAG = "msg";
@@ -39,15 +39,15 @@ const _DOCTYPE = `<!ELEMENT messagebundle (msg)*>
 <!ELEMENT ex (#PCDATA)>`;
 
 // used to merge translations when extracting
-export function xmbLoadToXml(content: string): xml.Node[] {
+export function xmbLoadToXml(content: string): XmlMessagesById {
   const parser = new HtmlToXmlParser(_MESSAGE_TAG);
-  const {nodes, errors} = parser.parse(content);
+  const {xmlMessagesById, errors} = parser.parse(content);
 
   if (errors.length) {
     throw new Error(`xmb parse errors:\n${errors.join("\n")}`);
   }
 
-  return nodes;
+  return xmlMessagesById;
 }
 
 export function xmbWrite(messages: i18n.Message[], locale: string | null, existingNodes: xml.Node[] = []): string {

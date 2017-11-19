@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {xliff2Digest, xliff2LoadToI18n, xliff2LoadToXml, xliff2Write} from "../../src/serializers/xliff2";
-import {MessageBundle} from "../../src/extractor/message-bundle";
+import {xliff2Digest, xliff2LoadToI18n, xliff2LoadToXml, xliff2Write} from "../../lib/src/serializers/xliff2";
+import {MessageBundle} from "../../lib/extractor/src/message-bundle";
 
 const XLIFF2 = `<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="fr">
@@ -133,15 +133,12 @@ describe("Xliff2 serializer", () => {
         },
         value: "etubirtta elbatalsnart"
       }
-    ]);
+    ] as any);
   });
 
   it("should write xliff2", () => {
     const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate(
-      "This is a test message {sex, select, other {deeply nested}}",
-      "file.ts"
-    );
+    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
     expect(messageBundle.write(xliff2Write, xliff2Digest)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en">
   <file original="ng.template" id="ngi18n">
@@ -167,16 +164,13 @@ describe("Xliff2 serializer", () => {
   });
 
   it("should write xliff2 with merged content", () => {
-    const nodes = xliff2LoadToXml(XLIFF2);
     const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate(
-      "This is a test message {sex, select, other {deeply nested}}",
-      "file.ts"
-    );
-    expect(messageBundle.write(xliff2Write, xliff2Digest, undefined, nodes))
+    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
+    expect(messageBundle.write(xliff2Write, xliff2Digest, xliff2LoadToXml(XLIFF2)))
       .toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en">
-  <file original="ng.template" id="ngi18n"><unit id="1933478729560469763">
+  <file original="ng.template" id="ngi18n">
+    <unit id="1933478729560469763">
       <notes>
         <note category="location">file.ts:2</note>
       </notes>

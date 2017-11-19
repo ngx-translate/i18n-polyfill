@@ -1,6 +1,6 @@
 import {TestBed} from "@angular/core/testing";
 import {LOCALE_ID, MissingTranslationStrategy, StaticProvider, TRANSLATIONS, TRANSLATIONS_FORMAT} from "@angular/core";
-import {I18n, MISSING_TRANSLATION_STRATEGY} from "../src";
+import {I18n, MISSING_TRANSLATION_STRATEGY} from "../lib/public_api";
 import {CommonModule} from "@angular/common";
 
 const XLIFF = `<?xml version="1.0" encoding="UTF-8" ?>

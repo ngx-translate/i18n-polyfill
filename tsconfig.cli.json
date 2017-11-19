@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "inlineSources": true,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "outDir": "dist",
+    "rootDir": "lib",
+    "lib": ["es2015", "dom"]
+  },
+  "files": [
+    "lib/extractor/ngx-extractor.ts"
+  ]
+}

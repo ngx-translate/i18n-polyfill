@@ -13,7 +13,7 @@ export abstract class AbstractAstParser {
    */
   protected _getCallArgStrings(callNode: ts.CallExpression): string[] {
     if (!callNode.arguments.length) {
-      return;
+      return [];
     }
 
     const firstArg = callNode.arguments[0];
@@ -29,6 +29,7 @@ export abstract class AbstractAstParser {
       default:
         console.log(`SKIP: Unknown argument type: '${this.syntaxKindToName(firstArg.kind)}'`, firstArg);
     }
+    return [];
   }
 
   /**

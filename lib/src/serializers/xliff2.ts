@@ -12,7 +12,7 @@ import * as xml from "./xml_helper";
 import {Parser} from "../ast/parser";
 import {getXmlTagDefinition} from "../ast/xml_tags";
 import {I18nError} from "../ast/parse_util";
-import {HtmlToXmlParser, I18nMessagesById} from "./serializer";
+import {HtmlToXmlParser, I18nMessagesById, XmlMessagesById} from "./serializer";
 import {decimalDigest} from "./digest";
 
 const _VERSION = "2.0";
@@ -53,20 +53,20 @@ export function xliff2LoadToI18n(content: string): I18nMessagesById {
 }
 
 // used to merge translations when extracting
-export function xliff2LoadToXml(content: string): xml.Node[] {
+export function xliff2LoadToXml(content: string): XmlMessagesById {
   const parser = new HtmlToXmlParser(_UNIT_TAG);
-  const {nodes, errors} = parser.parse(content);
+  const {xmlMessagesById, errors} = parser.parse(content);
 
   if (errors.length) {
     throw new Error(`xliff2 parse errors:\n${errors.join("\n")}`);
   }
 
-  return nodes;
+  return xmlMessagesById;
 }
 
-export function xliff2Write(messages: i18n.Message[], locale: string | null, existingNodes: xml.Node[] = []): string {
+export function xliff2Write(messages: i18n.Message[], locale: string | null, existingNodes?: xml.Node[]): string {
   const visitor = new WriteVisitor();
-  const units: xml.Node[] = existingNodes;
+  const units: xml.Node[] = existingNodes && existingNodes.length ? [new xml.CR(4), ...existingNodes] : [];
 
   messages.forEach(message => {
     const unit = new xml.Tag(_UNIT_TAG, {id: message.id});

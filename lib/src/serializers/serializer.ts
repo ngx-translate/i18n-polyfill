@@ -19,6 +19,10 @@ export interface I18nMessagesById {
   [msgId: string]: i18n.Node[];
 }
 
+export interface XmlMessagesById {
+  [id: string]: xml.Node;
+}
+
 export interface IcuContent {
   cases: {[value: string]: html.Node[]};
   expression: string;
@@ -164,12 +168,12 @@ export function serializeNodes(nodes: html.Node[], locale: string, params: {[key
 
 export class HtmlToXmlParser implements html.Visitor {
   private errors: I18nError[];
-  private nodes: html.Node[];
+  private xmlMessagesById: {[id: string]: xml.Node};
 
   constructor(private MESSAGE_TAG: string) {}
 
   parse(content: string) {
-    this.nodes = [];
+    this.xmlMessagesById = {};
 
     const parser = new Parser(getXmlTagDefinition).parse(content, "", false);
 
@@ -177,7 +181,7 @@ export class HtmlToXmlParser implements html.Visitor {
     html.visitAll(this, parser.rootNodes, null);
 
     return {
-      nodes: (this.nodes as any) as xml.Node[],
+      xmlMessagesById: this.xmlMessagesById,
       errors: this.errors
     };
   }
@@ -185,7 +189,10 @@ export class HtmlToXmlParser implements html.Visitor {
   visitElement(element: html.Element, context: any): any {
     switch (element.name) {
       case this.MESSAGE_TAG:
-        this.nodes.push(element);
+        const id = element.attrs.find(attr => attr.name === "id");
+        if (id) {
+          this.xmlMessagesById[id.value] = (element as any) as xml.Node;
+        }
         break;
       default:
         html.visitAll(this, element.children, null);

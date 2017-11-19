@@ -15,9 +15,9 @@ import {HtmlParser, TranslationBundle} from "./parser/html";
 import {I18nMessagesById, serializeNodes} from "./serializers/serializer";
 import {Message} from "./ast/i18n_ast";
 
-export declare interface I18n {
-  (def: string | I18nDef, params?: {[key: string]: any}): string;
-}
+// export declare interface I18n {
+//   (def: string | I18nDef, params?: {[key: string]: any}): string;
+// }
 
 export interface I18nDef {
   value: string;
@@ -43,10 +43,10 @@ export class I18n {
     @Inject(MISSING_TRANSLATION_STRATEGY)
     missingTranslationStrategy: MissingTranslationStrategy = MissingTranslationStrategy.Warning
   ) {
-    format = (format || "xlf").toLowerCase();
     let loadFct: (content: string, url: string) => I18nMessagesById;
     let digest: (message: Message) => string;
     let createMapper = (message: Message) => null;
+    format = (format || "xlf").toLowerCase();
     switch (format) {
       case "xtb":
         loadFct = xtbLoadToI18n;
@@ -60,10 +60,11 @@ export class I18n {
         break;
       case "xliff":
       case "xlf":
-      default:
         loadFct = xliffLoadToI18n;
         digest = xliffDigest;
         break;
+      default:
+        throw new Error(`Unknown translations format ${format}`);
     }
     const htmlParser = new HtmlParser();
 

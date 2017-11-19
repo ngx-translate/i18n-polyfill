@@ -1,31 +1,43 @@
 import * as ts from "typescript";
-import {readFileSync} from "fs";
+import {existsSync, readFileSync, statSync} from "fs";
 import * as glob from "glob";
 import {AbstractAstParser} from "./abstract-ast-parser";
-import {TranslationCollection} from "./translation-collection";
+import {xliff2Digest, xliff2LoadToXml, xliff2Write} from "../../src/serializers/xliff2";
+import {xliffDigest, xliffLoadToXml, xliffWrite} from "../../src/serializers/xliff";
+import {xtbDigest, xtbMapper} from "../../src/serializers/xtb";
+import {Message} from "../../src/ast/i18n_ast";
+import {xmbLoadToXml, xmbWrite} from "../../src/serializers/xmb";
+import {Node} from "../../src/serializers/xml_helper";
+import {MessageBundle} from "./message-bundle";
+import {XmlMessagesById} from "../../src/serializers/serializer";
 
-export function getAst(paths: string[]) {
+export function getAst(paths: string[]): {[url: string]: string[]} {
   const files = [];
   paths.forEach(path => {
     files.push(...glob.sync(path));
   });
   const parser = new ServiceParser();
-  let collection: TranslationCollection = new TranslationCollection();
-  files.forEach(p => {
-    // this._options.verbose && this._out(chalk.gray('- %s'), path);
-    const contents: string = readFileSync(p, "utf-8");
-    collection = collection.union(parser.extract(contents, p));
+  const collection: {[url: string]: string[]} = {};
+  files.forEach(path => {
+    if (statSync(path).isDirectory) {
+      // this._options.verbose && this._out(chalk.gray('- %s'), path);
+      const contents: string = readFileSync(path, "utf-8");
+      const entries = parser.extract(contents, path);
+      if (entries.length) {
+        collection[path] = entries;
+      }
+    }
   });
   // save file
-  return collection.keys();
+  return collection;
 }
 
 // source: https://github.com/biesbjerg/ngx-translate-extract/blob/master/src/parsers/service.parser.ts
 export class ServiceParser extends AbstractAstParser {
   protected _sourceFile: ts.SourceFile;
 
-  public extract(contents: string, path?: string): TranslationCollection {
-    let collection: TranslationCollection = new TranslationCollection();
+  public extract(contents: string, path?: string): string[] {
+    const entries: string[] = [];
 
     this._sourceFile = this._createSourceFile(path, contents);
     const classNodes = this._findClassNodes(this._sourceFile);
@@ -42,14 +54,11 @@ export class ServiceParser extends AbstractAstParser {
 
       const callNodes = this._findCallNodes(classNode, propertyName);
       callNodes.forEach(callNode => {
-        const keys: string[] = this._getCallArgStrings(callNode);
-        if (keys && keys.length) {
-          collection = collection.addKeys(keys);
-        }
+        entries.push(...this._getCallArgStrings(callNode));
       });
     });
 
-    return collection;
+    return entries;
   }
 
   /**
@@ -120,4 +129,43 @@ export class ServiceParser extends AbstractAstParser {
 
     return callNodes;
   }
+}
+
+export function getFileContent(messages: {[url: string]: string[]}, sourcePath: string, format?: string): string {
+  let loadFct: (content: string, url: string) => XmlMessagesById;
+  let writeFct: (messages: Message[], locale: string | null, existingNodes: Node[]) => string;
+  let digest: (message: Message) => string;
+  let createMapper = (message: Message) => null;
+  format = (format || "xlf").toLowerCase();
+  switch (format) {
+    case "xmb":
+      loadFct = xmbLoadToXml;
+      writeFct = xmbWrite;
+      digest = xtbDigest;
+      createMapper = xtbMapper;
+      break;
+    case "xliff2":
+    case "xlf2":
+      loadFct = xliff2LoadToXml;
+      writeFct = xliff2Write;
+      digest = xliff2Digest;
+      break;
+    case "xliff":
+    case "xlf":
+    default:
+      loadFct = xliffLoadToXml;
+      writeFct = xliffWrite;
+      digest = xliffDigest;
+      break;
+  }
+
+  let xmlMessagesById: XmlMessagesById = {};
+  if (existsSync(sourcePath)) {
+    xmlMessagesById = loadFct(readFileSync(sourcePath, {encoding: "utf8"}), sourcePath);
+  }
+  const messageBundle = new MessageBundle("en");
+  Object.keys(messages).forEach(url => {
+    messages[url].forEach(entry => messageBundle.updateFromTemplate(entry, url));
+  });
+  return messageBundle.write(writeFct, digest, xmlMessagesById, createMapper);
 }

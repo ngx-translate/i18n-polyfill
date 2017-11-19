@@ -1,10 +1,10 @@
-import {PlaceholderMapper} from "../serializers/serializer";
-import * as i18n from "../ast/i18n_ast";
-import {Node} from "../serializers/xml_helper";
-import {HtmlParser} from "../parser/html";
+import {I18nMessagesById, PlaceholderMapper, XmlMessagesById} from "../../src/serializers/serializer";
+import * as i18n from "../../src/ast/i18n_ast";
+import {Node} from "../../src/serializers/xml_helper";
+import {HtmlParser} from "../../src/parser/html";
 
 export class MessageBundle {
-  private messages: i18n.Message[] = [];
+  messages: i18n.Message[] = [];
   private htmlParser = new HtmlParser();
 
   constructor(private locale: string | null = null) {}
@@ -33,21 +33,25 @@ export class MessageBundle {
   }
 
   write(
-    write: (messages: i18n.Message[], locale: string | null, nodes?: Node[]) => string,
+    write: (messages: i18n.Message[], locale: string | null, existingNodes?: Node[]) => string,
     digest: (message: i18n.Message) => string,
+    xmlMessagesById?: XmlMessagesById,
     createMapper?: (messages: i18n.Message) => PlaceholderMapper,
-    existingNodes: Node[] = [],
     filterSources?: (path: string) => string
   ): string {
     const messages: {[id: string]: i18n.Message} = {};
+    const existingMessages = xmlMessagesById ? Object.keys(xmlMessagesById) : [];
 
     // Deduplicate messages based on their ID
     this.messages.forEach(message => {
       const id = digest(message);
-      if (!messages.hasOwnProperty(id)) {
-        messages[id] = message;
-      } else {
-        messages[id].sources.push(...message.sources);
+      // todo merge sources somehow
+      if (existingMessages.indexOf(id) === -1) {
+        if (!messages.hasOwnProperty(id)) {
+          messages[id] = message;
+        } else {
+          messages[id].sources.push(...message.sources);
+        }
       }
     });
 
@@ -64,8 +68,7 @@ export class MessageBundle {
       }
       return transformedMessage;
     });
-
-    return write(msgList, this.locale, existingNodes);
+    return write(msgList, this.locale, existingMessages.map(id => xmlMessagesById[id]));
   }
 }
 
