@@ -42,20 +42,30 @@ describe("Extractor", () => {
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template">
     <body>
-      <trans-unit id="983775b9a51ce14b036be72d4cfd65d68d64e231" datatype="html">
-        <source>translatable attribute</source>
-      </trans-unit>
-      <trans-unit id="78e9f3aab47c6cf393131413e0c51dedaa37766b" datatype="html">
+      <trans-unit id="2d6e40995b5d5bec0e172fd29e05f869645e7c5f" datatype="html">
+        <source>
+    Welcome to <x id="INTERPOLATION" equiv-text="{{title}}"/>!
+  </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app\\app.component.ts</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit><trans-unit id="54f29f9a6da150fc7c4fcd0b7e6d9a1b0314fd35" datatype="html">
+        <source>Here are some links to help you start: </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app\\app.component.ts</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+      </trans-unit><trans-unit id="78e9f3aab47c6cf393131413e0c51dedaa37766b" datatype="html">
         <source>This is a test <x id="INTERPOLATION" equiv-text="{{ok}}"/> !</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="sourcefile">src/app/app.component.ts</context>
           <context context-type="linenumber">1</context>
         </context-group>
-      </trans-unit>
-      <trans-unit id="f9ec330a3324eff5b27f13b259df96618c503488" datatype="html">
+      </trans-unit><trans-unit id="f9ec330a3324eff5b27f13b259df96618c503488" datatype="html">
         <source>another test ^_^</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="sourcefile">src/app/app.component.ts</context>
           <context context-type="linenumber">1</context>
         </context-group>
       </trans-unit>

@@ -1,5 +1,14 @@
 # @ngx-translate/i18n-polyfill
 
+Extraction tool + service to add support for code translations in Angular using the same implementation that is used for [template translations](https://angular.io/guide/i18n#template-translations).
+
+## :warning: **Disclamer**
+
+This library is a speculative polyfill, it means that it's supposed to replace an API that is coming in the future.
+Once code translations are available in Angular, this library will be deprecated.
+But since it's a polyfill, we expect the API to be pretty similar.
+If the API is different, a migration tool will be provided if it's possible and necessary.
+
 ## Installation
 
 To install this library, run:
@@ -8,17 +17,28 @@ To install this library, run:
 $ npm install @ngx-translate/i18n-polyfill --save
 ```
 
-## Consuming your library
+## How to use
 
-You can import this library in any Angular application by running:
+The API is quite simple, you get a service called `I18n` that takes 2 parameters: the content to translate
+and the parameters (optional). It'll return the content translated synchronously.
+The signature of the service is:
 
-```bash
-$ npm install @ngx-translate/i18n-polyfill
+`I18n: (def: string | I18nDef, params?: {[key: string]: any}) => string`.
+
+The content can be a simple string or an i18n definition:
+
+```ts
+I18nDef: {
+  value: string;
+  id?: string;
+  meaning?: string;
+  description?: string;
+}
 ```
 
-and then from your Angular `AppModule`:
+Provide the service `I18n` in your module or component:
 
-```typescript
+```ts
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
@@ -40,21 +60,57 @@ import { I18n } from '@ngx-translate/i18n-polyfill';
 export class AppModule { }
 ```
 
-Once the `I18n` service is imported & provided, you can use its components, directives and pipes in your Angular application.
+Once the `I18n` service is imported & provided, you can use it in your Angular application:
 
-## Development
+```typescript
+import {Component} from "@angular/core";
+import {I18n} from "@ngx-translate/i18n-polyfill";
 
-To generate all `*.js`, `*.d.ts` and `*.metadata.json` files:
-
-```bash
-$ npm run build
+@Component({
+  selector: "app-root",
+  template: "./app.component.html"
+})
+export class AppComponent {
+  constructor(i18n: I18n) {
+    console.log(i18n("This is a test {{myVar}} !", {myVar: "^_^"}));
+  }
+}
 ```
 
-To lint all `*.ts` files:
+## Content supported
+You can use strings, interpolations and [ICU expressions](https://angular.io/guide/i18n#select-among-alternative-text-messages) exactly like in [template translations](https://angular.io/guide/i18n#template-translations).
+Don't use elements, it makes no sense and you should use a template translation for that instead.
 
-```bash
-$ npm run lint
-```
+Interpolations will be replaced by the values that you provide in the object that you pass as the second parameter of the service.
+You should use the same names for your keys than the ones that you use in your interpolations.
+For example: `i18n("This is a test {{myVar}} !", {myVar: "^_^"})`
+
+## Extraction
+There is an extraction tool called `ngx-extractor` that will extract the messages.
+You should first extract the messages from the templates [using the `ng-xi18n` extraction tool from `@angular/compiler-cli`](https://angular.io/guide/i18n#create-a-translation-source-file-with-ng-xi18n)
+which will create an xliff or xmb file, and then run `ngx-extractor` on the same file to add the messages extracted from your code.
+The messages will be merged.
+
+The cli parameters are the following:
+- `--input` (alias: `-i`, required): Paths you would like to extract strings from. You can use path expansion, glob patterns and multiple paths.
+  
+  Example: `-i src/**/*.ts`.
+
+- `--format` (alias `-f`, optional, default `xlf`): Output format, either xlf, xlf2 or xmb.
+  
+  Example: `-f xlf`.
+
+- `--outFile` (alias `-o`, required): Path and name of the file where you would like to save extracted strings.
+  If the file exists then the messages will be merged.
+  
+  Example: `-o src/i18n/source.xlf`.
+
+And here is how you would extract the messages from your ng cli application to a file named src/i18n/source.xlf:
+- run ng-xi18n: `ng xi18n -of i18n/source.xlf -f xlf --locale en`
+- run ng-extractor: `ngx-extractor -i src/**/*.ts -f xlf -o src/i18n/source.xlf`
+
+## Special thanks
+The service was written using source code from [Angular](https://github.com/angular/angular) and the extraction tool used code from [ngx-translate-extract](https://github.com/biesbjerg/ngx-translate-extract) by @biesbjerg.
 
 ## License
 

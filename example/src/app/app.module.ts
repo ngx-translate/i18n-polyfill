@@ -1,8 +1,8 @@
 import {BrowserModule} from "@angular/platform-browser";
 import {LOCALE_ID, NgModule, TRANSLATIONS, TRANSLATIONS_FORMAT} from "@angular/core";
+import {I18n} from "@ngx-translate/i18n-polyfill";
 
 import {AppComponent} from "./app.component";
-import {I18n} from "../../../lib/public_api";
 
 @NgModule({
   declarations: [AppComponent],

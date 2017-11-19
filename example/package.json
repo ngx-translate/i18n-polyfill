@@ -5,10 +5,14 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:fr": "ng serve --aot --locale fr --i18nFile src/i18n/messages.fr.xlf --i18nFormat xlf",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "ng-xi18n": "ng xi18n -of i18n/source.xlf -f xlf --locale en",
+    "ngx-extractor": "ngx-extractor -i src/**/*.ts -f xlf -o src/i18n/source.xlf",
+    "extract": "npm run ng-xi18n && npm run ngx-extractor"
   },
   "private": true,
   "dependencies": {
@@ -21,6 +25,7 @@
     "@angular/platform-browser": "^5.0.0",
     "@angular/platform-browser-dynamic": "^5.0.0",
     "@angular/router": "^5.0.0",
+    "@ngx-translate/i18n-polyfill": "^0.1.0",
     "core-js": "^2.4.1",
     "rxjs": "^5.5.2",
     "zone.js": "^0.8.14"
