@@ -15,6 +15,14 @@ const XLIFF = `<?xml version="1.0" encoding="UTF-8" ?>
           <context context-type="linenumber">1</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="78e9f3aab47c6cf393131413e0c51dedaa37766b" datatype="html">
+        <source>This is a test <x id="INTERPOLATION" equiv-text="{{ok}}"/> !</source>
+        <target>Ceci est un test <x id="INTERPOLATION" equiv-text="{{ok}}"/> !</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="9161da7236814a71c5fec94eb42161651f6b4967" datatype="html">
         <source>This is a test message <x id="ICU" equiv-text="{sex, select, other {...}}"/></source>
         <target>Ceci est un message de test <x id="ICU" equiv-text="{sex, select, other {...}}"/></target>
@@ -78,5 +86,10 @@ describe("Polyfill", () => {
         id: "custom"
       })
     ).toBe("profondément imbriqué et personnalisé !!");
+  });
+
+  it("Should support parameters", () => {
+    const i18nService = getService();
+    expect(i18nService("This is a test {{ok}} !", {ok: "\\o/"})).toBe("Ceci est un test \\o/ !");
   });
 });

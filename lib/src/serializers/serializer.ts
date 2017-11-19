@@ -112,15 +112,15 @@ export class SimplePlaceholderMapper extends i18n.RecurseVisitor implements Plac
 const i18nSelectPipe = new I18nSelectPipe();
 class SerializerVisitor implements html.Visitor {
   private i18nPluralPipe: I18nPluralPipe;
-  constructor(locale: string, private params) {
+  constructor(locale: string, private params: {[key: string]: any}) {
     this.i18nPluralPipe = new I18nPluralPipe(new NgLocaleLocalization(locale));
   }
   visitElement(element: html.Element, context: any): any {
     if (getHtmlTagDefinition(element.name).isVoid) {
-      return `<${element.name}${this._visitAll(element.attrs, " ")}/>`;
+      return `<${element.name}${this.serializeNodes(element.attrs, " ")}/>`;
     }
 
-    return `<${element.name}${this._visitAll(element.attrs, " ")}>${this._visitAll(element.children)}</${
+    return `<${element.name}${this.serializeNodes(element.attrs, " ")}>${this.serializeNodes(element.children)}</${
       element.name
     }>`;
   }
@@ -139,7 +139,7 @@ class SerializerVisitor implements html.Visitor {
 
   visitExpansion(expansion: html.Expansion, context: any): any {
     const cases = {};
-    expansion.cases.forEach(c => (cases[c.value] = this._visitAll(c.expression)));
+    expansion.cases.forEach(c => (cases[c.value] = this.serializeNodes(c.expression)));
 
     switch (expansion.type) {
       case "select":
@@ -151,10 +151,10 @@ class SerializerVisitor implements html.Visitor {
   }
 
   visitExpansionCase(expansionCase: html.ExpansionCase, context: any): any {
-    return ` ${expansionCase.value} {${this._visitAll(expansionCase.expression)}}`;
+    return ` ${expansionCase.value} {${this.serializeNodes(expansionCase.expression)}}`;
   }
 
-  private _visitAll(nodes: html.Node[], join = ""): string {
+  private serializeNodes(nodes: html.Node[], join = ""): string {
     if (nodes.length === 0) {
       return "";
     }

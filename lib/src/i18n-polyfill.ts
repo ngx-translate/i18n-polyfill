@@ -15,9 +15,9 @@ import {HtmlParser, TranslationBundle} from "./parser/html";
 import {I18nMessagesById, serializeNodes} from "./serializers/serializer";
 import {Message} from "./ast/i18n_ast";
 
-// export declare interface I18n {
-//   (def: string | I18nDef, params?: {[key: string]: any}): string;
-// }
+export declare interface I18n {
+  (def: string | I18nDef, params?: {[key: string]: any}): string;
+}
 
 export interface I18nDef {
   value: string;
@@ -68,6 +68,15 @@ export class I18n {
     }
     const htmlParser = new HtmlParser();
 
+    const translationsBundle = TranslationBundle.load(
+      translations,
+      "i18n",
+      digest,
+      createMapper,
+      loadFct,
+      missingTranslationStrategy
+    );
+
     // todo use interpolation config
     return (def: string | I18nDef, params: {[key: string]: any} = {}) => {
       const content = typeof def === "string" ? def : def.value;
@@ -83,19 +92,14 @@ export class I18n {
         throw htmlParserResult.errors;
       }
 
-      // const {messages} = htmlParser.extractMessages(htmlParserResult.rootNodes, DEFAULT_INTERPOLATION_CONFIG);
-      // const res: (string | IcuContent | IcuContentStr)[] = [];
-      const translationsBundle = TranslationBundle.load(
-        translations,
-        "i18n",
-        digest,
-        createMapper,
-        loadFct,
-        missingTranslationStrategy
+      const mergedNodes = htmlParser.mergeTranslations(
+        htmlParserResult.rootNodes,
+        translationsBundle,
+        params,
+        metadata,
+        ["wrapper"]
       );
-      const mergedNodes = htmlParser.mergeTranslations(htmlParserResult.rootNodes, translationsBundle, metadata, [
-        "wrapper"
-      ]);
+
       return serializeNodes(mergedNodes.rootNodes, locale, params).join("");
     };
   }
