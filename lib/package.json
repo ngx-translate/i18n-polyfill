@@ -26,10 +26,6 @@
     "glob": "7.1.2",
     "yargs": "10.0.3"
   },
-  "dist": "../dist",
-  "lib": {
-    "entryFile": "public_api.ts"
-  },
   "bin": {
     "ngx-extractor": "extractor/ngx-extractor.js"
   }
