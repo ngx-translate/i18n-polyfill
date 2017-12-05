@@ -1,4 +1,4 @@
-# @ngx-translate/i18n-polyfill
+# @ngx-translate/i18n-polyfill ![Travis Status](https://travis-ci.org/ngx-translate/i18n-polyfill.svg?branch=master) ![npm version](https://img.shields.io/npm/v/@ngx-translate/i18n-polyfill.svg)
 
 Extraction tool + service to add support for code translations in Angular using the same implementation that is used for [template translations](https://angular.io/guide/i18n#template-translations).
 
