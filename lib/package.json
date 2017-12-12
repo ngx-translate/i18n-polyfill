@@ -1,6 +1,5 @@
 {
   "name": "@ngx-translate/i18n-polyfill",
-  "version": "0.1.0",
   "private": false,
   "repository": {
     "type": "git",
