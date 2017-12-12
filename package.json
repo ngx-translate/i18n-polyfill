@@ -1,7 +1,7 @@
 {
   "name": "@ngx-translate/i18n-polyfill",
   "description": "A speculative polyfill to support i18n code translations in Angular",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "scripts": {
     "prebuild": "del-cli dist",
@@ -15,7 +15,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:ci": "jest --runInBand",
-    "package": "ng-packagr -p ng-package.json",
+    "package": "ng-packagr -p lib/ng-package.json",
     "release": "standard-version"
   },
   "jest": {
@@ -67,7 +67,7 @@
     "glob": "7.1.2",
     "jest": "21.2.1",
     "jest-preset-angular": "4.0.1",
-    "ng-packagr": "^2.0.0-rc.4",
+    "ng-packagr": "^2.0.0-rc.6",
     "node-watch": "0.5.5",
     "prettier": "1.9.0",
     "rxjs": "5.5.2",
