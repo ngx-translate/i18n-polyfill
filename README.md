@@ -36,7 +36,7 @@ I18nDef: {
 }
 ```
 
-Provide the service `I18n` in your module or component:
+Prepare your application to use i18n, [as described on the official documentation](https://angular.io/guide/i18n#merge-the-completed-translation-file-into-the-app), and then provide the service `I18n` in your module or component:
 
 ```ts
 import { BrowserModule } from '@angular/platform-browser';
