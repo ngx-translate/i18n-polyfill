@@ -2,7 +2,7 @@
 
 Extraction tool + service to add support for code translations in Angular using the same implementation that is used for [template translations](https://angular.io/guide/i18n#template-translations).
 
-## :warning: **Disclamer**
+## :warning: **Disclaimer**
 
 This library is a speculative polyfill, it means that it's supposed to replace an API that is coming in the future.
 Once code translations are available in Angular, this library will be deprecated.
