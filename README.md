@@ -107,7 +107,7 @@ The cli parameters are the following:
 
 And here is how you would extract the messages from your ng cli application to a file named src/i18n/source.xlf:
 - run ng-xi18n: `ng xi18n -of i18n/source.xlf -f xlf --locale en`
-- run ng-extractor: `ngx-extractor -i src/**/*.ts -f xlf -o src/i18n/source.xlf`
+- run ng-extractor: `ngx-extractor -i "src/**/*.ts" -f xlf -o "src/i18n/source.xlf"`
 
 ## Special thanks
 The service was written using source code from [Angular](https://github.com/angular/angular) and the extraction tool used code from [ngx-translate-extract](https://github.com/biesbjerg/ngx-translate-extract) by @biesbjerg.
