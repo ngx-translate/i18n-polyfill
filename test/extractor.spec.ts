@@ -5,7 +5,11 @@ describe("Extractor", () => {
     const messages = getAst(["example/src/**/*.ts"]);
     const url = "example/src/app/app.component.ts";
     expect(messages[url]).toBeDefined();
-    expect(messages[url]).toEqual(["This is a test {{ok}} !", "another test ^_^"]);
+    expect(messages[url]).toEqual([
+      {description: "Custom desc", id: "customId", meaning: "Custom meaning", value: "Some value"},
+      "This is a test {{ok}} !",
+      "another test ^_^"
+    ]);
   });
 
   it("should generate content", () => {
@@ -15,6 +19,15 @@ describe("Extractor", () => {
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="customId" datatype="html">
+        <source>Some value</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+        <note priority="1" from="description">Custom desc</note>
+        <note priority="1" from="meaning">Custom meaning</note>
+      </trans-unit>
       <trans-unit id="78e9f3aab47c6cf393131413e0c51dedaa37766b" datatype="html">
         <source>This is a test <x id="INTERPOLATION" equiv-text="{{ok}}"/> !</source>
         <context-group purpose="location">
@@ -68,6 +81,15 @@ describe("Extractor", () => {
           <context context-type="sourcefile">src/app/app.component.ts</context>
           <context context-type="linenumber">1</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="customId" datatype="html">
+        <source>Some value</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+        <note priority="1" from="description">Custom desc</note>
+        <note priority="1" from="meaning">Custom meaning</note>
       </trans-unit>
     </body>
   </file>

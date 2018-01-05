@@ -1,7 +1,8 @@
-import {I18nMessagesById, PlaceholderMapper, XmlMessagesById} from "../../src/serializers/serializer";
+import {PlaceholderMapper, XmlMessagesById} from "../../src/serializers/serializer";
 import * as i18n from "../../src/ast/i18n_ast";
 import {Node} from "../../src/serializers/xml_helper";
 import {HtmlParser} from "../../src/parser/html";
+import {I18nDef} from "../../src/i18n-polyfill";
 
 export class MessageBundle {
   messages: i18n.Message[] = [];
@@ -9,8 +10,9 @@ export class MessageBundle {
 
   constructor(private locale: string | null = null) {}
 
-  updateFromTemplate(template: string, url: string): i18n.Message[] {
-    const htmlParserResult = this.htmlParser.parse(template, url, true);
+  updateFromTemplate(template: string | I18nDef, url: string): i18n.Message[] {
+    const str = typeof template === "string" ? template : template.value;
+    const htmlParserResult = this.htmlParser.parse(str, url, true);
 
     if (htmlParserResult.errors.length) {
       throw htmlParserResult.errors;
@@ -20,6 +22,12 @@ export class MessageBundle {
 
     if (i18nParserResult.errors.length) {
       throw i18nParserResult.errors;
+    }
+
+    if (typeof template !== "string") {
+      i18nParserResult.messages[0].id = template.id || "";
+      i18nParserResult.messages[0].meaning = template.meaning || "";
+      i18nParserResult.messages[0].description = template.description || "";
     }
 
     this.messages = this.messages.concat(i18nParserResult.messages);

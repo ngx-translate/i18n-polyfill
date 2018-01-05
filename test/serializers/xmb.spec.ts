@@ -77,6 +77,45 @@ describe("Xmb serializer", () => {
 `);
   });
 
+  it("should write xmb with I18nDef", () => {
+    const messageBundle = new MessageBundle("en");
+    messageBundle.updateFromTemplate(
+      {
+        value: "This is a test message",
+        id: "customId",
+        meaning: "Custom meaning",
+        description: "Custom desc"
+      },
+      "file.ts"
+    );
+    expect(messageBundle.write(xmbWrite, xmbDigest, {}, xmbMapper)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE messagebundle [
+<!ELEMENT messagebundle (msg)*>
+<!ATTLIST messagebundle class CDATA #IMPLIED>
+
+<!ELEMENT msg (#PCDATA|ph|source)*>
+<!ATTLIST msg id CDATA #IMPLIED>
+<!ATTLIST msg seq CDATA #IMPLIED>
+<!ATTLIST msg name CDATA #IMPLIED>
+<!ATTLIST msg desc CDATA #IMPLIED>
+<!ATTLIST msg meaning CDATA #IMPLIED>
+<!ATTLIST msg obsolete (obsolete) #IMPLIED>
+<!ATTLIST msg xml:space (default|preserve) "default">
+<!ATTLIST msg is_hidden CDATA #IMPLIED>
+
+<!ELEMENT source (#PCDATA)>
+
+<!ELEMENT ph (#PCDATA|ex)*>
+<!ATTLIST ph name CDATA #REQUIRED>
+
+<!ELEMENT ex (#PCDATA)>
+]>
+<messagebundle>
+  <msg id="customId" desc="Custom desc" meaning="Custom meaning"><source>file.ts:1</source>This is a test message</msg>
+</messagebundle>
+`);
+  });
+
   it("should write xmb with merged content", () => {
     const messageBundle = new MessageBundle("en");
     messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");

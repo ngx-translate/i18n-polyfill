@@ -163,6 +163,35 @@ describe("Xliff2 serializer", () => {
 `);
   });
 
+  it("should write xliff2 with I18nDef", () => {
+    const messageBundle = new MessageBundle("en");
+    messageBundle.updateFromTemplate(
+      {
+        value: "This is a test message",
+        id: "customId",
+        meaning: "Custom meaning",
+        description: "Custom desc"
+      },
+      "file.ts"
+    );
+    expect(messageBundle.write(xliff2Write, xliff2Digest)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en">
+  <file original="ng.template" id="ngi18n">
+    <unit id="customId">
+      <notes>
+        <note category="description">Custom desc</note>
+        <note category="meaning">Custom meaning</note>
+        <note category="location">file.ts:1</note>
+      </notes>
+      <segment>
+        <source>This is a test message</source>
+      </segment>
+    </unit>
+  </file>
+</xliff>
+`);
+  });
+
   it("should write xliff2 with merged content", () => {
     const messageBundle = new MessageBundle("en");
     messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");

@@ -10,14 +10,15 @@ import {xmbLoadToXml, xmbWrite} from "../../src/serializers/xmb";
 import {Node} from "../../src/serializers/xml_helper";
 import {MessageBundle} from "./message-bundle";
 import {XmlMessagesById} from "../../src/serializers/serializer";
+import {I18nDef} from "../../src/i18n-polyfill";
 
-export function getAst(paths: string[]): {[url: string]: string[]} {
+export function getAst(paths: string[]): {[url: string]: (string | I18nDef)[]} {
   const files = [];
   paths.forEach(path => {
     files.push(...glob.sync(path));
   });
   const parser = new ServiceParser();
-  const collection: {[url: string]: string[]} = {};
+  const collection: {[url: string]: (string | I18nDef)[]} = {};
   files.forEach(path => {
     if (statSync(path).isDirectory) {
       // this._options.verbose && this._out(chalk.gray('- %s'), path);
@@ -36,8 +37,8 @@ export function getAst(paths: string[]): {[url: string]: string[]} {
 export class ServiceParser extends AbstractAstParser {
   protected _sourceFile: ts.SourceFile;
 
-  public extract(contents: string, path?: string): string[] {
-    const entries: string[] = [];
+  public extract(contents: string, path?: string): (string | I18nDef)[] {
+    const entries: (string | I18nDef)[] = [];
 
     this._sourceFile = this._createSourceFile(path, contents);
     const classNodes = this._findClassNodes(this._sourceFile);
@@ -131,7 +132,7 @@ export class ServiceParser extends AbstractAstParser {
   }
 }
 
-export function getFileContent(messages: {[url: string]: string[]}, sourcePath: string, format?: string): string {
+export function getFileContent(messages: {[url: string]: (string|I18nDef)[]}, sourcePath: string, format?: string): string {
   let loadFct: (content: string, url: string) => XmlMessagesById;
   let writeFct: (messages: Message[], locale: string | null, existingNodes: Node[]) => string;
   let digest: (message: Message) => string;

@@ -1,3 +1,5 @@
+import {I18nDef} from "../i18n-polyfill";
+
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.

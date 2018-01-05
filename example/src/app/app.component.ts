@@ -8,6 +8,7 @@ import {I18n} from "@ngx-translate/i18n-polyfill";
 })
 export class AppComponent {
   title = "app";
+  customId = this.i18n({id: "customId", value: "Some value", description: "Custom desc", meaning: "Custom meaning"});
 
   constructor(private i18n: I18n) {
     console.log(this.i18n("This is a test {{ok}} !", {ok: "\\o/"}));
