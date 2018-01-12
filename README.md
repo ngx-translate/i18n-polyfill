@@ -36,16 +36,22 @@ I18nDef: {
 }
 ```
 
-Prepare your application to use i18n, [as described on the official documentation](https://angular.io/guide/i18n#merge-the-completed-translation-file-into-the-app), and then provide the service `I18n` in your module or component:
+Prepare your application to use i18n, [as described on the official documentation](https://angular.io/guide/i18n#merge-the-completed-translation-file-into-the-app), and then provide the `TRANSLATIONS` file and `I18n` service in your module or component:
 
 ```ts
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {
+  NgModule,
+  TRANSLATIONS
+} from '@angular/core';
 
 import { AppComponent } from './app.component';
 
 // Import the service
 import { I18n } from '@ngx-translate/i18n-polyfill';
+
+declare const require; // Use the require method provided by webpack
+const translations = require(`raw-loader!../locale/messages.fr.xlf`);
 
 @NgModule({
   declarations: [
@@ -54,17 +60,41 @@ import { I18n } from '@ngx-translate/i18n-polyfill';
   imports: [
     BrowserModule
   ],
-  providers: [I18n],
+  providers: [
+    {provide: TRANSLATIONS, useValue: translations},
+    I18n
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
 ```
 
-Once the `I18n` service is imported & provided, you can use it in your Angular application:
+To dynamically load the translations file based on locale you can use a factory provider.
+ 
+ 
+Replace
+ 
+```
+{provide: TRANSLATIONS, useValue: translations}
+```
+with:
+ 
+```typescript
+{
+  provide: TRANSLATIONS,
+  useFactory: (locale) => {
+    locale = locale || 'en'; // default to english if no locale provided
+    return require(`raw-loader!../locale/messages.${locale}.xlf`);
+  },
+  deps: [LOCALE_ID]
+}
+```
+ 
+Once the `I18n` service and `TRANSLATIONS` are imported & provided, you can use the service in your Angular application:
 
 ```typescript
-import {Component} from "@angular/core";
-import {I18n} from "@ngx-translate/i18n-polyfill";
+import { Component } from "@angular/core";
+import { I18n } from "@ngx-translate/i18n-polyfill";
 
 @Component({
   selector: "app-root",
