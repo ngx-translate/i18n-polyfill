@@ -81,6 +81,12 @@ describe("Extractor", () => {
           <context context-type="sourcefile">src/app/app.component.ts</context>
           <context context-type="linenumber">1</context>
         </context-group>
+      </trans-unit><trans-unit id="0cd84cefa60f8c0e31d02904644807a6" datatype="html">
+        <source>special &amp; characters</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="customId" datatype="html">
         <source>Some value</source>
