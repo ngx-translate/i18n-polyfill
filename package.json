@@ -1,7 +1,7 @@
 {
   "name": "@ngx-translate/i18n-polyfill",
   "description": "A speculative polyfill to support i18n code translations in Angular",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": false,
   "scripts": {
     "prebuild": "del-cli dist",
@@ -30,7 +30,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ngx-translate/prolyfill"
+    "url": "https://github.com/ngx-translate/i18n-polyfill"
   },
   "author": {
     "name": "Olivier Combe",
@@ -42,7 +42,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ngx-translate/prolyfill/issues"
+    "url": "https://github.com/ngx-translate/i18n-polyfill/issues"
   },
   "peerDependencies": {},
   "devDependencies": {

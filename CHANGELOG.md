@@ -2,14 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="0.1.2"></a>
-## [0.1.2](https://github.com/ngx-translate/prolyfill/compare/0.1.0...0.1.2) (2018-01-05)
+<a name="0.1.3"></a>
+## [0.1.3](https://github.com/ngx-translate/i18n-polyfill/compare/0.1.2...0.1.3) (2018-05-02)
 
 
 ### Bug Fixes
 
-* **build:** use unix LF for cli ([19a847b](https://github.com/ngx-translate/prolyfill/commit/19a847b)), closes [#5](https://github.com/ngx-translate/prolyfill/issues/5)
-* **extractor:** support i18n messages with custom id/meaning/description ([07b0319](https://github.com/ngx-translate/prolyfill/commit/07b0319)), closes [#9](https://github.com/ngx-translate/prolyfill/issues/9)
+* **extractor:** serialize xml entities read from a source file ([86cb31e](https://github.com/ngx-translate/i18n-polyfill/commit/86cb31e))
+
+
+<a name="0.1.2"></a>
+## [0.1.2](https://github.com/ngx-translate/i18n-polyfill/compare/0.1.0...0.1.2) (2018-01-05)
+
+
+### Bug Fixes
+
+* **build:** use unix LF for cli ([19a847b](https://github.com/ngx-translate/i18n-polyfill/commit/19a847b)), closes [#5](https://github.com/ngx-translate/i18n-polyfill/issues/5)
+* **extractor:** support i18n messages with custom id/meaning/description ([07b0319](https://github.com/ngx-translate/i18n-polyfill/commit/07b0319)), closes [#9](https://github.com/ngx-translate/i18n-polyfill/issues/9)
 
 
 
