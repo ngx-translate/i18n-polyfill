@@ -28,7 +28,7 @@ class Visitor implements IVisitor {
   }
 
   visitText(text: Text): string {
-    return text.value;
+    return _escapeXml(text.value);
   }
 
   visitElement(element: ml.Element) {
@@ -46,7 +46,7 @@ class Visitor implements IVisitor {
 
   private _serializeAttributes(attrs: {[k: string]: string}) {
     const strAttrs = Object.keys(attrs)
-      .map((name: string) => `${name}="${attrs[name]}"`)
+      .map((name: string) => `${name}="${_escapeXml(attrs[name])}"`)
       .join(" ");
     return strAttrs.length > 0 ? " " + strAttrs : "";
   }
@@ -67,13 +67,7 @@ export interface Node {
 }
 
 export class Declaration implements Node {
-  public attrs: {[k: string]: string} = {};
-
-  constructor(unescapedAttrs: {[k: string]: string}) {
-    Object.keys(unescapedAttrs).forEach((k: string) => {
-      this.attrs[k] = _escapeXml(unescapedAttrs[k]);
-    });
-  }
+  constructor(public attrs: {[k: string]: string}) {}
 
   visit(visitor: IVisitor): any {
     return visitor.visitDeclaration(this);
@@ -89,13 +83,7 @@ export class Doctype implements Node {
 }
 
 export class Tag implements Node {
-  public attrs: {[k: string]: string} = {};
-
-  constructor(public name: string, unescapedAttrs: {[k: string]: string} = {}, public children: Node[] = []) {
-    Object.keys(unescapedAttrs).forEach((k: string) => {
-      this.attrs[k] = _escapeXml(unescapedAttrs[k]);
-    });
-  }
+  constructor(public name: string, public attrs: {[k: string]: string} = {}, public children: Node[] = []) {}
 
   visit(visitor: IVisitor): any {
     return visitor.visitTag(this);
@@ -103,10 +91,7 @@ export class Tag implements Node {
 }
 
 export class Text implements Node {
-  value: string;
-  constructor(unescapedValue: string) {
-    this.value = _escapeXml(unescapedValue);
-  }
+  constructor(public value: string) {}
 
   visit(visitor: IVisitor): any {
     return visitor.visitText(this);
