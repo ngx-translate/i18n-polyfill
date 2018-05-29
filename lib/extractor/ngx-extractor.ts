@@ -43,11 +43,17 @@ export function main(args) {
       type: "string",
       choices: ["xlf", "xlf2", "xmb"]
     })
+    .option("locale", {
+      alias: "l",
+      describe: "Source language of the application",
+      default: "en",
+      type: "string",
+    })
     .exitProcess(true)
     .parse(args);
 
   const messages = getAst(cli.input);
-  const content = getFileContent(messages, cli.outFile, cli.format);
+  const content = getFileContent(messages, cli.outFile, cli.format, cli.locale);
   if (!existsSync(cli.outFile)) {
     console.log(`File "${cli.outFile}" doesn't exist, it will be created`);
   }
