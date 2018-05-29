@@ -3,5 +3,6 @@
   "dest": "../dist",
   "lib": {
     "entryFile": "public_api.ts"
-  }
+  },
+  "whitelistedNonPeerDependencies": ["glob", "yargs"]
 }

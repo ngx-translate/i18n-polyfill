@@ -1,6 +1,6 @@
 {
   "name": "@ngx-translate/i18n-polyfill",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -19,9 +19,8 @@
     "url": "https://github.com/ngx-translate/i18n-polyfill/issues"
   },
   "peerDependencies": {
-    "@angular/core": "^5.0.0",
-    "@angular/common": "^5.0.0",
-    "typescript": "^2.4.2"
+    "@angular/core": ">=6.0.0",
+    "@angular/common": ">=6.0.0"
   },
   "dependencies": {
     "glob": "7.1.2",
