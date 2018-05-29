@@ -132,7 +132,7 @@ export class ServiceParser extends AbstractAstParser {
   }
 }
 
-export function getFileContent(messages: {[url: string]: (string|I18nDef)[]}, sourcePath: string, format?: string): string {
+export function getFileContent(messages: {[url: string]: (string|I18nDef)[]}, sourcePath: string, format?: string, locale = "en"): string {
   let loadFct: (content: string, url: string) => XmlMessagesById;
   let writeFct: (messages: Message[], locale: string | null, existingNodes: Node[]) => string;
   let digest: (message: Message) => string;
@@ -164,7 +164,7 @@ export function getFileContent(messages: {[url: string]: (string|I18nDef)[]}, so
   if (existsSync(sourcePath)) {
     xmlMessagesById = loadFct(readFileSync(sourcePath, {encoding: "utf8"}), sourcePath);
   }
-  const messageBundle = new MessageBundle("en");
+  const messageBundle = new MessageBundle(locale);
   Object.keys(messages).forEach(url => {
     messages[url].forEach(entry => messageBundle.updateFromTemplate(entry, url));
   });

@@ -135,6 +135,10 @@ The cli parameters are the following:
   
   Example: `-o src/i18n/source.xlf`.
 
+- `--locale` (alias `-l`, optional, default: `en`): Source language of the application.
+  
+  Example: `-l de`.
+
 And here is how you would extract the messages from your ng cli application to a file named src/i18n/source.xlf:
 - run ng-xi18n: `ng xi18n -of i18n/source.xlf -f xlf --locale en`
 - run ng-extractor: `ngx-extractor -i src/**/*.ts -f xlf -o src/i18n/source.xlf`
