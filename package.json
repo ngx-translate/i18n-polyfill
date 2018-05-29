@@ -1,7 +1,7 @@
 {
   "name": "@ngx-translate/i18n-polyfill",
   "description": "A speculative polyfill to support i18n code translations in Angular",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "private": false,
   "scripts": {
     "prebuild": "del-cli dist",

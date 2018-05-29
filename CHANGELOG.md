@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/ngx-translate/i18n-polyfill/compare/v0.1.3...v1.0.0) (2018-05-29)
+
+
+### Features
+
+* **extractor:** add source locale cli option ([834e09f](https://github.com/ngx-translate/i18n-polyfill/commit/834e09f))
+* **npm:** update to Angular v6 ([3d3bf90](https://github.com/ngx-translate/i18n-polyfill/commit/3d3bf90))
+
+
+### BREAKING CHANGES
+
+* **npm:** we are now using Angular v6 to build and distribute the library, this might break people on v5, that's why we are bumping the version
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://github.com/ngx-translate/i18n-polyfill/compare/v0.1.3...v0.2.0) (2018-05-29)
 
