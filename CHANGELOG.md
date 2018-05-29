@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.2.0"></a>
+# [0.2.0](https://github.com/ngx-translate/i18n-polyfill/compare/v0.1.3...v0.2.0) (2018-05-29)
+
+
+### Features
+
+* **extractor:** add source locale cli option ([834e09f](https://github.com/ngx-translate/i18n-polyfill/commit/834e09f))
+
+
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://github.com/ngx-translate/i18n-polyfill/compare/0.1.2...0.1.3) (2018-05-02)
 
