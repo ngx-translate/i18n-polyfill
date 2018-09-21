@@ -26,9 +26,17 @@ export abstract class AbstractAstParser {
         return (firstArg as ts.ArrayLiteralExpression).elements.map((element: ts.StringLiteral) => element.text);
       case ts.SyntaxKind.ObjectLiteralExpression:
         const i18nDef: I18nDef = {value: ""};
+        let isDynamic = false;
         (firstArg as ts.ObjectLiteralExpression).properties.forEach((prop: ts.PropertyAssignment) => {
+          if (prop.initializer.kind !== ts.SyntaxKind.StringLiteral) {
+            isDynamic = true;
+          }
           i18nDef[(prop.name as ts.Identifier).text] = (prop.initializer as ts.StringLiteral).text;
         });
+        if (isDynamic) {
+            console.log("WARNING: We cannot extract variable values passed to TranslateService (yet)");
+            break;
+        }
         if (!i18nDef.value) {
           throw new Error(
             `An I18nDef requires a value property on '${this.syntaxKindToName(firstArg.kind)}' for ${firstArg}`
