@@ -17,4 +17,10 @@ export class AppComponent {
   test() {
     console.log(this.i18n("another test ^_^"));
   }
+
+  testWithDynamicParameters() {
+    const idValue = "idValue";
+    console.log(this.i18n({id: "somePrefix." + idValue, value: "Value for " + idValue}));
+  }
+
 }
