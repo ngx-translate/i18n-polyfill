@@ -1,5 +1,6 @@
 import {Component} from "@angular/core";
 import {I18n} from "@ngx-translate/i18n-polyfill";
+import {Testing} from "../global";
 
 @Component({
   selector: "app-root",
@@ -16,5 +17,6 @@ export class AppComponent {
 
   test() {
     console.log(this.i18n("another test ^_^"));
+    console.log(Testing(this.i18n));
   }
 }
