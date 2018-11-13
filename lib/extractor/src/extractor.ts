@@ -59,6 +59,19 @@ export class ServiceParser extends AbstractAstParser {
       });
     });
 
+    const functionNodes = this._findFunctionNodes(this._sourceFile);
+    functionNodes.forEach(functionNode => {
+      const propertyName: string = this._findTranslateServicePropertyName(functionNode);
+      if (!propertyName) {
+        return;
+      }
+
+      const callNodes = this._findCallNodes(functionNode, propertyName);
+      callNodes.forEach(callNode => {
+        entries.push(...this._getCallArgStrings(callNode));
+      });
+    });
+
     return entries;
   }
 
@@ -66,7 +79,7 @@ export class ServiceParser extends AbstractAstParser {
    * Detect what the TranslateService instance property
    * is called by inspecting constructor arguments
    */
-  protected _findTranslateServicePropertyName(constructorNode: ts.ConstructorDeclaration): string {
+  protected _findTranslateServicePropertyName(constructorNode: ts.ConstructorDeclaration | ts.FunctionDeclaration): string {
     if (!constructorNode) {
       return null;
     }
@@ -102,6 +115,13 @@ export class ServiceParser extends AbstractAstParser {
    */
   protected _findClassNodes(node: ts.Node): ts.ClassDeclaration[] {
     return this._findNodes(node, ts.SyntaxKind.ClassDeclaration) as ts.ClassDeclaration[];
+  }
+
+  /**
+   * Find function nodes
+   */
+  protected _findFunctionNodes(node: ts.Node): ts.FunctionDeclaration[] {
+    return this._findNodes(node, ts.SyntaxKind.FunctionDeclaration) as ts.FunctionDeclaration[];
   }
 
   /**

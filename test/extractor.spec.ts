@@ -42,6 +42,13 @@ describe("Extractor", () => {
           <context context-type="linenumber">1</context>
         </context-group>
       </trans-unit>
+      <trans-unit id=\"Global1\" datatype=\"html\">
+        <source>Hello World</source>
+        <context-group purpose=\"location\">
+          <context context-type=\"sourcefile\">example/src/global.ts</context>
+          <context context-type=\"linenumber\">1</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>
@@ -76,6 +83,13 @@ describe("Extractor", () => {
         <context-group purpose="location">
           <context context-type="sourcefile">example/src/app/app.component.ts</context>
           <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id=\"Global1\" datatype=\"html\">
+        <source>Hello World</source>
+        <context-group purpose=\"location\">
+          <context context-type=\"sourcefile\">example/src/global.ts</context>
+          <context context-type=\"linenumber\">1</context>
         </context-group>
       </trans-unit>
     </body>
@@ -132,6 +146,13 @@ describe("Extractor", () => {
         </context-group>
         <note priority="1" from="description">Custom desc</note>
         <note priority="1" from="meaning">Custom meaning</note>
+      </trans-unit>
+      <trans-unit id=\"Global1\" datatype=\"html\">
+        <source>Hello World</source>
+        <context-group purpose=\"location\">
+          <context context-type=\"sourcefile\">example/src/global.ts</context>
+          <context context-type=\"linenumber\">1</context>
+        </context-group>
       </trans-unit>
     </body>
   </file>
