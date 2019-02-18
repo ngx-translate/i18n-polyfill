@@ -8,7 +8,9 @@ describe("Extractor", () => {
     expect(messages[url]).toEqual([
       {description: "Custom desc", id: "customId", meaning: "Custom meaning", value: "Some value"},
       "This is a test {{ok}} !",
-      "another test ^_^"
+      "another test ^_^",
+      "un autre test",
+      {value: "encore un test", id: "ID"}
     ]);
   });
 
@@ -37,6 +39,20 @@ describe("Extractor", () => {
       </trans-unit>
       <trans-unit id="f9ec330a3324eff5b27f13b259df96618c503488" datatype="html">
         <source>another test ^_^</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="63fd4dcd3ed0485c8863b9656894b049b19f43fd" datatype="html">
+        <source>un autre test</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ID" datatype="html">
+        <source>encore un test</source>
         <context-group purpose="location">
           <context context-type="sourcefile">example/src/app/app.component.ts</context>
           <context context-type="linenumber">1</context>
@@ -80,6 +96,20 @@ describe("Extractor", () => {
       </trans-unit>
       <trans-unit id="f9ec330a3324eff5b27f13b259df96618c503488" datatype="html">
         <source>another test ^_^</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="63fd4dcd3ed0485c8863b9656894b049b19f43fd" datatype="html">
+        <source>un autre test</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ID" datatype="html">
+        <source>encore un test</source>
         <context-group purpose="location">
           <context context-type="sourcefile">example/src/app/app.component.ts</context>
           <context context-type="linenumber">1</context>
@@ -146,6 +176,20 @@ describe("Extractor", () => {
         </context-group>
         <note priority="1" from="description">Custom desc</note>
         <note priority="1" from="meaning">Custom meaning</note>
+      </trans-unit>
+      <trans-unit id="63fd4dcd3ed0485c8863b9656894b049b19f43fd" datatype="html">
+        <source>un autre test</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="ID" datatype="html">
+        <source>encore un test</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">example/src/app/app.component.ts</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
       </trans-unit>
       <trans-unit id=\"Global1\" datatype=\"html\">
         <source>Hello World</source>
