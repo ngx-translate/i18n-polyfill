@@ -84,7 +84,7 @@ with:
   provide: TRANSLATIONS,
   useFactory: (locale) => {
     locale = locale || 'en'; // default to english if no locale provided
-    return require(`raw-loader!../locale/messages.${locale}.xlf`);
+    return require(`raw-loader!../locale/messages.${locale}.xlf`).default;
   },
   deps: [LOCALE_ID]
 }
