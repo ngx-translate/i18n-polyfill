@@ -51,7 +51,7 @@ import { AppComponent } from './app.component';
 import { I18n } from '@ngx-translate/i18n-polyfill';
 
 declare const require; // Use the require method provided by webpack
-const translations = require(`raw-loader!../locale/messages.fr.xlf`);
+const translations = require(`raw-loader!../locale/messages.fr.xlf`).default;
 
 @NgModule({
   declarations: [
