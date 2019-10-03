@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {xliffDigest, xliffLoadToI18n, xliffLoadToXml, xliffWrite} from "../../lib/src/serializers/xliff";
-import {MessageBundle} from "../../lib/extractor/src/message-bundle";
+import { xliffDigest, xliffLoadToI18n, xliffLoadToXml, xliffWrite } from "../../lib/src/serializers/xliff";
+import { MessageBundle } from "../../lib/extractor/src/message-bundle";
 
 const XLIFF = `<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
@@ -43,7 +43,7 @@ const XLIFF = `<?xml version="1.0" encoding="UTF-8" ?>
       <trans-unit id="d7fa2d59aaedcaa5309f13028c59af8c85b8c49d" datatype="html">
         <source><x id="LINE_BREAK" ctype="lb"/><x id="TAG_IMG" ctype="image"/><x id="START_TAG_DIV" ctype="x-div"/><x id="CLOSE_TAG_DIV" ctype="x-div"/></source>
         <target><x id="START_TAG_DIV" ctype="x-div"/><x id="CLOSE_TAG_DIV" ctype="x-div"/><x id="TAG_IMG" ctype="image"/><x id="LINE_BREAK" ctype="lb"/></target>
-      </trans-unit>            
+      </trans-unit>
       <trans-unit id="empty target" datatype="html">
         <source><x id="LINE_BREAK" ctype="lb"/><x id="TAG_IMG" ctype="image"/><x id="START_TAG_DIV" ctype="x-div"/><x id="CLOSE_TAG_DIV" ctype="x-div"/></source>
         <target/>
@@ -65,6 +65,20 @@ const XLIFF = `<?xml version="1.0" encoding="UTF-8" ?>
 lines</source>
         <target>multi
 lignes</target>
+      </trans-unit>
+      <trans-unit id="mrk-test">
+        <source>First sentence.</source>
+        <seg-source>
+          <invalid-tag>Should not be parsed</invalid-tag>
+        </seg-source>
+        <target>Translated <mrk mtype="seg" mid="1">first sentence</mrk>.</target>
+      </trans-unit>
+      <trans-unit id="mrk-test2">
+        <source>First sentence. Second sentence.</source>
+        <seg-source>
+          <invalid-tag>Should not be parsed</invalid-tag>
+        </seg-source>
+        <target>Translated <mrk mtype="seg" mid="1"><mrk mtype="seg" mid="2">first</mrk> sentence</mrk>.</target>
       </trans-unit>
     </body>
   </file>
@@ -191,6 +205,18 @@ describe("Xliff serializer", () => {
 lines</source>
         <target>multi
 lignes</target>
+      </trans-unit><trans-unit id="mrk-test">
+        <source>First sentence.</source>
+        <seg-source>
+          <invalid-tag>Should not be parsed</invalid-tag>
+        </seg-source>
+        <target>Translated <mrk mtype="seg" mid="1">first sentence</mrk>.</target>
+      </trans-unit><trans-unit id="mrk-test2">
+        <source>First sentence. Second sentence.</source>
+        <seg-source>
+          <invalid-tag>Should not be parsed</invalid-tag>
+        </seg-source>
+        <target>Translated <mrk mtype="seg" mid="1"><mrk mtype="seg" mid="2">first</mrk> sentence</mrk>.</target>
       </trans-unit>
       <trans-unit id="9161da7236814a71c5fec94eb42161651f6b4967" datatype="html">
         <source>This is a test message <x id="ICU" equiv-text="{sex, select, other {...}}"/></source>

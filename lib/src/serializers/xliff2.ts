@@ -20,6 +20,7 @@ const _XMLNS = "urn:oasis:names:tc:xliff:document:2.0";
 const _DEFAULT_SOURCE_LANG = "en";
 const _PLACEHOLDER_TAG = "ph";
 const _PLACEHOLDER_SPANNING_TAG = "pc";
+const _MARKER_TAG = 'mrk';
 const _XLIFF_TAG = "xliff";
 const _SOURCE_TAG = "source";
 const _TARGET_TAG = "target";
@@ -262,6 +263,8 @@ class XmlToI18n implements ml.Visitor {
           );
         }
         break;
+      case _MARKER_TAG:
+          return [].concat(...ml.visitAll(this, el.children));
       default:
         this._addError(el, `Unexpected tag`);
     }

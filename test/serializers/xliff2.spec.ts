@@ -117,6 +117,24 @@ lines</source>
 lignes</target>
       </segment>
     </unit>
+    <unit id="mrk-test">
+     <notes>
+      <note id="n1" appliesTo="target">Please check the translation for 'namespace'. On also can use 'espace de nom',but I think most technical manuals use the English term.</note>
+     </notes>
+     <segment>
+      <source>You use your own namespace.</source>
+      <target>Vous pouvez utiliser votre propre <mrk id="m1" type="comment" ref="#n1">namespace</mrk>.</target>
+     </segment>
+    </unit>
+    <unit id="mrk-test2">
+     <notes>
+      <note id="n1" appliesTo="target">Please check the translation for 'namespace'. On also can use 'espace de nom',but I think most technical manuals use the English term.</note>
+     </notes>
+     <segment>
+      <source>You use your own namespace.</source>
+      <target>Vous pouvez utiliser <mrk id="m1" type="comment" ref="#n1">votre propre <mrk id="m2" type="comment" ref="#n1">namespace</mrk></mrk>.</target>
+     </segment>
+    </unit>
   </file>
 </xliff>
 `;
@@ -294,6 +312,22 @@ lines</source>
         <target>multi
 lignes</target>
       </segment>
+    </unit><unit id="mrk-test">
+     <notes>
+      <note id="n1" appliesTo="target">Please check the translation for &apos;namespace&apos;. On also can use &apos;espace de nom&apos;,but I think most technical manuals use the English term.</note>
+     </notes>
+     <segment>
+      <source>You use your own namespace.</source>
+      <target>Vous pouvez utiliser votre propre <mrk id="m1" type="comment" ref="#n1">namespace</mrk>.</target>
+     </segment>
+    </unit><unit id="mrk-test2">
+     <notes>
+      <note id="n1" appliesTo="target">Please check the translation for &apos;namespace&apos;. On also can use &apos;espace de nom&apos;,but I think most technical manuals use the English term.</note>
+     </notes>
+     <segment>
+      <source>You use your own namespace.</source>
+      <target>Vous pouvez utiliser <mrk id="m1" type="comment" ref="#n1">votre propre <mrk id="m2" type="comment" ref="#n1">namespace</mrk></mrk>.</target>
+     </segment>
     </unit>
     <unit id="5980763297918130233">
       <notes>
