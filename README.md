@@ -2,6 +2,36 @@
 
 Extraction tool + service to add support for code translations in Angular using the same implementation that is used for [template translations](https://angular.io/guide/i18n#template-translations).
 
+## :heavy_exclamation_mark: **Out of Date: You should use [@angular/localize](https://angular.io/guide/i18n)**
+
+Angular 9 now supports code based localization via 
+```
+$localize:`meaning|description@@id:message`
+```
+[Locl](https://github.com/loclapp/locl/tree/master/libs/cli) is the new tool that lets you extract the string from your files (since angular CLI again does not support it yet)
+
+### Migration 
+
+1. Replace all occurrences with the new syntax:
+    - You can use this regex in VSCode: 
+      Search: 
+      ```
+      (.*)this\.i18n\(\{\n[\s\/]*meaning:[\s\n]*'(.*)',\n[\s\/]*description:[\s\n]*'(.*)',\n[\s\/]*id:[\s\n]*'(.*)',\n[\s\/]*value:[\s\n]*['`](.*)['`]\n[\s\/]*\}\)
+       ```
+      Replace: 
+       ```
+      $1$localize`:$5|$3@@$4:$2`
+      ```
+2. Remove all i18n usings such as: 
+```
+import { I18n } from '@ngx-translate/i18n-polyfill';
+private i18n: I18n
+```
+Some Caveats: 
+ - be aware of existing tranlation functions that are named differently or whose attributes are in a different order
+ - be aware that `meaning`, `description` and `id` can no longer contain `:`-symbol
+ - be aware that `message` should not contain ```
+
 ## :warning: **Disclamer**
 
 This library is a speculative polyfill, it means that it's supposed to replace an API that is coming in the future.
