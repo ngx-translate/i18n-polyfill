@@ -18,5 +18,7 @@ export class AppComponent {
   test() {
     console.log(this.i18n("another test ^_^"));
     console.log(Testing(this.i18n));
+    console.log(this.i18n("un " + "autre" + " test"));
+    console.log(this.i18n({value: "encore " + "un" + " test", id: "ID"}));
   }
 }

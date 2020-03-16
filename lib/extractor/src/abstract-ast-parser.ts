@@ -18,20 +18,42 @@ export abstract class AbstractAstParser {
     }
 
     const firstArg = callNode.arguments[0];
-    switch (firstArg.kind) {
+    return this._getStringsFromExpression(firstArg);
+  }
+
+  /**
+   * Get strings from an arbitrary JS expression
+   */
+  protected _getStringsFromExpression(expression: ts.Expression): (string | I18nDef)[] {
+    switch (expression.kind) {
       case ts.SyntaxKind.StringLiteral:
       case ts.SyntaxKind.FirstTemplateToken:
-        return [(firstArg as ts.StringLiteral).text];
+        // Example: this.i18n('This is a sentence.')
+        return [(expression as ts.StringLiteral).text];
       case ts.SyntaxKind.ArrayLiteralExpression:
-        return (firstArg as ts.ArrayLiteralExpression).elements.map((element: ts.StringLiteral) => element.text);
+        return (expression as ts.ArrayLiteralExpression).elements.map((element: ts.StringLiteral) => element.text);
+      case ts.SyntaxKind.BinaryExpression:
+        // Example: this.i18n('str1' + 'str2')
+        const binExp = expression as ts.BinaryExpression;
+        const left = this._getStringsFromExpression(binExp.left)[0],
+              right = this._getStringsFromExpression(binExp.right)[0];
+        if (binExp.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+            typeof left === 'string' && typeof right === 'string') {
+          return [left + right];
+        }
+        console.log(`SKIP: Unknown BinaryExpression: `, expression);
+        break;
       case ts.SyntaxKind.ObjectLiteralExpression:
+        // Example: this.i18n({value: 'My value', description: 'Desc'})
+        // or:      this.i18n({value: 'My ' + 'value'})
         const i18nDef: I18nDef = {value: ""};
-        (firstArg as ts.ObjectLiteralExpression).properties.forEach((prop: ts.PropertyAssignment) => {
-          i18nDef[(prop.name as ts.Identifier).text] = (prop.initializer as ts.StringLiteral).text;
+        (expression as ts.ObjectLiteralExpression).properties.forEach((prop: ts.PropertyAssignment) => {
+          const text = this._getStringsFromExpression(prop.initializer)[0];
+          i18nDef[(prop.name as ts.Identifier).text] = text;
         });
         if (!i18nDef.value) {
           throw new Error(
-            `An I18nDef requires a value property on '${this.syntaxKindToName(firstArg.kind)}' for ${firstArg}`
+            `An I18nDef requires a value property on '${this.syntaxKindToName(expression.kind)}' for ${expression}`
           );
         }
         return [i18nDef];
@@ -39,7 +61,7 @@ export abstract class AbstractAstParser {
         console.log("WARNING: We cannot extract variable values passed to TranslateService (yet)");
         break;
       default:
-        console.log(`SKIP: Unknown argument type: '${this.syntaxKindToName(firstArg.kind)}'`, firstArg);
+        console.log(`SKIP: Unknown argument type: '${this.syntaxKindToName(expression.kind)}'`, expression);
     }
     return [];
   }
