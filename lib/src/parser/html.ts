@@ -449,7 +449,7 @@ class Visitor implements html.Visitor {
     this.inImplicitNode = wasInImplicitNode;
 
     if (this.mode === VisitorMode.Merge) {
-      return new html.Element(el.name, [], childNodes, el.sourceSpan, el.startSourceSpan, el.endSourceSpan);
+      return new html.Element(el.name, el.attrs, childNodes, el.sourceSpan, el.startSourceSpan, el.endSourceSpan);
     }
     return null;
   }

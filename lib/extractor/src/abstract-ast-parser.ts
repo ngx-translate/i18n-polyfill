@@ -27,7 +27,7 @@ export abstract class AbstractAstParser {
       case ts.SyntaxKind.ObjectLiteralExpression:
         const i18nDef: I18nDef = {value: ""};
         (firstArg as ts.ObjectLiteralExpression).properties.forEach((prop: ts.PropertyAssignment) => {
-          i18nDef[(prop.name as ts.Identifier).text] = (prop.initializer as ts.StringLiteral).text;
+          i18nDef[(prop.name as ts.Identifier).text] = prop.initializer ? (prop.initializer as ts.StringLiteral).text : (prop.name as ts.Identifier).text;
         });
         if (!i18nDef.value) {
           throw new Error(

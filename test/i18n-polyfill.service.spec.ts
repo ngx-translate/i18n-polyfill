@@ -92,4 +92,13 @@ describe("Polyfill", () => {
     const i18nService = getService();
     expect(i18nService("This is a test {{ok}} !", {ok: "\\o/"})).toBe("Ceci est un test \\o/ !");
   });
+
+  it("Should preserve HTML attributes", () => {
+    const i18nService = getService([
+      {provide: MISSING_TRANSLATION_STRATEGY, useValue: MissingTranslationStrategy.Ignore}
+    ]);
+    expect(i18nService('Here is a <a href="/otherPage">link</a>')).toBe(
+        'Here is a <a href="/otherPage">link</a>'
+    );
+  });
 });
