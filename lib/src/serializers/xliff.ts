@@ -25,6 +25,9 @@ const _UNIT_TAG = "trans-unit";
 const _CONTEXT_GROUP_TAG = "context-group";
 const _CONTEXT_TAG = "context";
 const _DEFAULT_SOURCE_LANG = "en";
+const _MARKER_TAG = 'mrk';
+const _SEGMENT_SOURCE_TAG = 'seg-source';
+
 
 export function xliffLoadToI18n(content: string): I18nMessagesById {
   // xliff to xml nodes
@@ -166,6 +169,7 @@ class XliffParser implements ml.Visitor {
         break;
 
       case _SOURCE_TAG:
+      case _SEGMENT_SOURCE_TAG:
         // ignore source message
         break;
 
@@ -211,8 +215,8 @@ class XmlToI18n implements ml.Visitor {
     const xmlIcu = new Parser(getXmlTagDefinition).parse(message, "", true);
     this._errors = xmlIcu.errors;
 
-    const i18nNodes =
-      this._errors.length > 0 || xmlIcu.rootNodes.length === 0 ? [] : ml.visitAll(this, xmlIcu.rootNodes);
+   const i18nNodes  =
+      this._errors.length > 0 || xmlIcu.rootNodes.length === 0 ? [] :[].concat(...ml.visitAll(this, xmlIcu.rootNodes)) ;
 
     return {
       i18nNodes,
@@ -224,7 +228,7 @@ class XmlToI18n implements ml.Visitor {
     return new i18n.Text(text.value, text.sourceSpan!);
   }
 
-  visitElement(el: ml.Element, context: any): i18n.Placeholder | null {
+  visitElement(el: ml.Element, context: any): any|null {
     if (el.name === _PLACEHOLDER_TAG) {
       const nameAttr = el.attrs.find(attr => attr.name === "id");
       if (nameAttr) {
@@ -232,6 +236,8 @@ class XmlToI18n implements ml.Visitor {
       }
 
       this._addError(el, `<${_PLACEHOLDER_TAG}> misses the "id" attribute`);
+    } else if (el.name === _MARKER_TAG) {
+      return ml.visitAll(this, el.children);
     } else {
       this._addError(el, `Unexpected tag`);
     }

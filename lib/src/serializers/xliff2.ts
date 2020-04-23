@@ -28,6 +28,7 @@ const _NOTES_TAG = "notes";
 const _NOTE_TAG = "note";
 const _SEGMENT_TAG = "segment";
 const _FILE_TAG = "file";
+const _MARKER_TAG = 'mrk';
 
 // http://docs.oasis-open.org/xliff/xliff-core/v2.0/os/xliff-core-v2.0-os.html
 export function xliff2LoadToI18n(content: string): I18nMessagesById {
@@ -262,6 +263,8 @@ class XmlToI18n implements ml.Visitor {
           );
         }
         break;
+        case _MARKER_TAG:
+          return ml.visitAll(this, el.children);
       default:
         this._addError(el, `Unexpected tag`);
     }
