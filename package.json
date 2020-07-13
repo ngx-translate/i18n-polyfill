@@ -71,7 +71,7 @@
     "node-watch": "0.5.5",
     "prettier": "1.9.0",
     "rxjs": "6.2.0",
-    "standard-version": "4.2.0",
+    "standard-version": "8.0.1",
     "tsickle": "0.26.0",
     "tslib": "^1.7.1",
     "tslint": "5.8.0",
