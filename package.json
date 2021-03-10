@@ -57,7 +57,7 @@
     "@types/jest": "21.1.8",
     "@types/node": "8.0.54",
     "@types/prettier": "1.8.1",
-    "@types/yargs": "8.0.2",
+    "@types/yargs": "16.2.0",
     "codelyzer": "4.3.0",
     "commitizen": "2.9.6",
     "core-js": "2.5.1",
@@ -78,7 +78,7 @@
     "tslint-config-prettier": "1.6.0",
     "tslint-no-circular-imports": "0.2.0",
     "typescript": "~2.7.2",
-    "yargs": "^12.0.5",
+    "yargs": "^16.2.0",
     "zone.js": "0.8.18"
   },
   "config": {
