@@ -67,7 +67,7 @@
     "jest": "22.0.4",
     "jest-cli": "22.0.4",
     "jest-preset-angular": "5.0.0",
-    "ng-packagr": "^3.0.0",
+    "ng-packagr": "^10.1.1",
     "node-watch": "0.5.5",
     "prettier": "1.9.0",
     "rxjs": "6.2.0",
