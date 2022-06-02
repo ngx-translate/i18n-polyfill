@@ -49,7 +49,7 @@
     "@angular/common": "6.0.3",
     "@angular/compiler": "6.0.3",
     "@angular/compiler-cli": "6.0.3",
-    "@angular/core": "6.0.3",
+    "@angular/core": "11.0.5",
     "@angular/platform-browser": "6.0.3",
     "@angular/platform-browser-dynamic": "6.0.3",
     "@types/core-js": "0.9.43",
